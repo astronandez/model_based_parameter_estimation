@@ -1,8 +1,12 @@
+# Additionall Ignore from lab group
+videos/*
+!videos/.gitkeep
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
-
+.venv/
 # C extensions
 *.so
 

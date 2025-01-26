@@ -1,0 +1,6 @@
+{
+    "screen_width": 480,
+    "screen_height": 640,
+    "video_input": 1,
+    "rotation": "lambda frame: frame"
+}
