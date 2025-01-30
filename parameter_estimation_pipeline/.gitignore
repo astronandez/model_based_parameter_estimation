@@ -1,0 +1,10 @@
+# Ignore __pycache__ directories and .pyc/.pyo files
+__pycache__/
+*.py[cod]
+
+# Add any other files or directories to ignore
+output/*
+!output/.gitkeep
+
+
+.DS_Store
