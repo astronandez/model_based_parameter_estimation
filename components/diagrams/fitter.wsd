@@ -1,0 +1,33 @@
+@startuml fitter
+left to right direction
+skinparam BackgroundColor transparent
+skinparam componentStyle rectangle
+
+title fitter.py Testbench block diagram
+component "config" as config #aqua
+component "zs" as zsin #red
+component "plotMesurements()" as pltmeas #lime
+component "plotCurveFit()" as pltcurv #lime
+component "plotResidualPD()" as pltres #lime
+
+component "dataloader" as dataloader {
+    component "load" as load {
+        portin "file_path" as fpload
+        portin "H" as H
+        portout "z" as zload
+        portout "t" as tload
+    }
+}
+component "Grapher" as grapher {
+    portin "graph_path" as gp
+    portin "t" as tin
+    portin "z" as zin
+    portin "z_fit" as z_fin
+    portin "residual" as res
+}
+
+grapher --> pltmeas
+grapher --> pltcurv
+grapher --> pltres
+
+@enduml

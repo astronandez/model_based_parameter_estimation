@@ -46,7 +46,7 @@ if __name__ == "__main__":
         with open(config_path, 'r') as f:
             return json.load(f)
     
-    camera_config_path = './configuration/cameras/rot90clockwise.json'
+    camera_config_path = './configuration_methods/camera_configs/camera_rot90clockwise.json'
     camera_config = loadConfig(camera_config_path)
     camera = Camera(camera_config)
     camera.record()
