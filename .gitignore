@@ -1,7 +1,10 @@
 # Additionall Ignore from lab group
 videos/*
 !videos/.gitkeep
-
+output/*
+!output/.gitkeep
+graphs/*
+!graphs/.gitkeep
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
