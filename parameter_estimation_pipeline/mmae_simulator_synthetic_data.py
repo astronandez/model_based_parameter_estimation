@@ -29,7 +29,7 @@ class MMAESimulatorSyntheticData:
 
 if __name__ == "__main__":
     # Load configuration from JSON file
-    λs, m, k, b, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy = simulation_configuration_setup("config_simulated_data.json")
+    λs, m, k, b, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy = simulation_configuration_setup("../configuration_methods/parameter_estimation_configs/config_simulated_data.json")
 
     # Set random seed
     np.random.seed(random_seed)

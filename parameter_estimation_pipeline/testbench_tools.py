@@ -163,7 +163,7 @@ def mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_poster
     return_csv(times, pdvs_summary, title="./output/pdvs_summary.csv")
 
     # Plot csv data
-    # plot_csv_data("./output/measurements.csv")
+    plot_csv_data("./output/measurements.csv")
 
     # Plot the estimated variables over time
     plot_λ_hat(times, lambda_hats, true_λ)
