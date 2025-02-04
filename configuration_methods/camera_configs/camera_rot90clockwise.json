@@ -1,6 +1,0 @@
-{
-    "screen_width": 480,
-    "screen_height": 640,
-    "video_input": 1,
-    "rotation": "cv.rotate(frame, cv.ROTATE_90_CLOCKWISE)"
-}

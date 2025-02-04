@@ -1,0 +1,7 @@
+{
+    "frame_w": 480,
+    "frame_h": 640,
+    "input": 1,
+    "output_path": "./videos/",
+    "write": false
+}

@@ -1,0 +1,8 @@
+{
+    "detector": "./components/computer_vision/cv_models/sticky_detector.pt",
+    "display": true, 
+    "screen_width": 480,
+    "screen_height": 640,
+    "video_input": "./videos/recording_20250125_182912_trim.mp4",
+    "video_outout": "./videos/recording_20250125_182912_CV.mp4"
+}

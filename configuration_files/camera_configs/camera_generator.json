@@ -1,0 +1,7 @@
+{
+    "frame_w": 480,
+    "frame_h": 640,
+    "input": "./videos/recording_20250203_130858.mp4",
+    "output_path": "./videos/",
+    "write": false
+}

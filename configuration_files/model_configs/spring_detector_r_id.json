@@ -1,0 +1,14 @@
+{
+    "run": true,
+    "display": true, 
+    "rotate": false,
+    "screen_width": 640,
+    "screen_height": 360,
+
+    "detector": "./computervision/spring_detector.pt",
+    "video_feed": "./videos/spring_detector_r_id.mp4v",
+    "video_out": "./videos/spring_detector_r_id_CV.mp4v",
+    "measurements_output": "./runs/validation_tests/spring_detector_r_id_measurements.csv",
+    "graph_output": "./runs/validation_tests/spring_detector_r_id",
+    "H": [[1,0]]
+}

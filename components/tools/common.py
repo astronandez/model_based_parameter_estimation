@@ -1,8 +1,8 @@
 from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square
 import json
 from itertools import product
-from dataloader import Dataloader
-from grapher import Grapher, plt
+from tools.dataloader import Dataloader
+from tools.grapher import Grapher, plt
 
 ############## Config Utilities #################
 def loadConfig(config_path):
