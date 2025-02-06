@@ -1,0 +1,9 @@
+===== Measurement Noise Metrics =====
+Mean of y position: 367.1212
+Variance of y position: 0.0042632567
+Standard Deviation of y position: 0.06529362
+======== System Noise Metrics =======
+Mean of x position: 289.51877
+Variance of x position: 0.0099823475
+Standard Deviation of x position: 0.0999117 
+

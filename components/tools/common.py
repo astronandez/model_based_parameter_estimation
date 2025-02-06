@@ -1,54 +1,16 @@
-from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square
+from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray
 import json
+import cv2 as cv
 from itertools import product
-from tools.dataloader import Dataloader
-from tools.grapher import Grapher, plt
+from ..tools.dataloader import Dataloader
+from .grapher import *
 
 ############## Config Utilities #################
 def loadConfig(config_path):
     with open(config_path, 'r') as f:
         return json.load(f)
 
-def evaluationSetup(config_path):
-    config = loadConfig(config_path)
-
-    m_start = config["m_variants_start"]
-    m_end = config["m_variants_end"]
-    m_step = config["m_variants_step"]
-
-    k_start = config["k_variants_start"]
-    k_end = config["k_variants_end"]
-    k_step = config["k_variants_step"]
-
-    b_start = config["b_variants_start"]
-    b_end = config["b_variants_end"]
-    b_step = config["b_variants_step"]
-
-    # Generate model variants
-    ms = arange(m_start, m_end + m_step, m_step).tolist()
-    ks = arange(k_start, k_end + k_step, k_step).tolist()
-    bs = arange(b_start, b_end + b_step, b_step).tolist()
-
-    # Generate all possible combinations of m, k, and b
-    λs = [array(λ) for λ in product(ms, ks, bs)]
-    
-    m = config['true_m']
-    k = config['true_k']
-    b = config['true_b']
-    dt = config["dt"]
-    H = array(config["H"])
-    
-    # Q and R for the MMAE estimator
-    Q = eye(H.shape[1]) * config["Q"]
-    R = eye(H.shape[0]) * config["R"]
-
-    x0 = array(config["x0"])
-
-    return config, λs, m, k, b, dt, H, Q, R, x0
-
-def level1Setup(config_path):
-    config = loadConfig(config_path)
-
+def defaultSetup(config):
     Q_start = config["Q_variants_start"]
     Q_end = config["Q_variants_end"]
     Q_step = config["Q_variants_step"]
@@ -76,51 +38,39 @@ def level1Setup(config_path):
 
     Qs = arange(Q_start, Q_end + Q_step, Q_step).tolist()
     Rs = arange(R_start, R_end + R_step, R_step).tolist()
-    
+
     # Generate all possible combinations of m, k, and b
     λs = [array(λ) for λ in product(ms, ks, bs)]
     # Configure Matricies
-    H = array(config["H"])
     x0 = array(config["x0"])
-    true_Q = eye(H.shape[1]) * config["true_Q"]
-    true_R = eye(H.shape[0]) * config["true_R"]
-
     dt = config["dt"]
     m = config['true_m']
     k = config['true_k']
     b = config['true_b']
+    H = array(config["H"])
+    Q = eye(H.shape[1]) * config["true_Q"]
+    R = eye(H.shape[0]) * config["true_R"]
 
-
-
-    return config, m, k, b, true_Q, true_R, λs, dt, H, Qs, Rs, x0
-
-def measurementMetrics(measurement_path, start=None, end=None):
-    dataloader = Dataloader()
-    dataloader.loadMeasurements(measurement_path)
-    
-    z_mu = mean(dataloader.cy[start:end])
-    t = dataloader.time[start:end]
-    z = (z_mu - dataloader.cy[start:end])
-    # z = dataloader.cy
-    z_var = var(z)
-    z_std = std(z)
-
-    print("Measurement mean(z) = ", z_mu)
-    print(f"Measurement Varience var(z) = {z_var}")
-    print(f"Measurement Standard Deviation std(z) = {z_std}")
-    print(f"Initial Position = {z[0]}")
-    print("Time Between Measurements mean(dt) = ", mean(dataloader.dt[start:end]))
-    
-    # grapher.plotMeasurements(config_path, graph_path, t, z)
-    return t, z
+    return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0
 
 ############## Input Utilities #################
-def impulse(steps, step_impulse, amplitude):    
-    u = [array([[0.0]]) for i in range(steps)]
-    u[step_impulse][0,0] = amplitude
-    u = array(u)
-    return u
+def impulse(steps, step_impulse, amplitude, dt):
+    rescale_amp = amplitude / dt
+    u = [array([0.0]) for i in range(steps)]
+    u[step_impulse][0] = amplitude
+    return array(u)
 
+def ramp(t, impulse_time, amplitude):
+    u = zeros_like(t)
+
+    for i in range(impulse_time + 1):
+        u[i][0] = (i / impulse_time) * amplitude
+        
+    for i in range(impulse_time, 2 * impulse_time):
+        u[i] = ((2 * impulse_time - i) / (2 * impulse_time - impulse_time)) * amplitude
+    
+    return u
+    
 def squareWave(start, length, width, amplitude):
     signal = zeros(length)
     end = min(length, start + width)  # Ensure the end doesn't exceed the signal length
@@ -181,46 +131,64 @@ def classToWeight(car_type_label):
     else:
         return 0
 
+def drawDetections(frame, cx, cy, width, height):
+    x1, y1, x2, y2 = centerToBoundingBox(cx, cy, width, height)
+    cv.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
+    cv.putText(frame, f'z: {cy} px', (int(cx), int(cy) - int(height/2 + 5)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    return frame
+
+def inspectData(exp_name, ts, dts, cxs, cys):
+    labels1 = [f"./graphs/{exp_name}_y_measurements.fig",
+                f"Detector Measurements z, position in frame (y-axis)",
+                "Time (s)",
+                "Position (m)"]
+    labels2 = [f"./graphs/{exp_name}_x_measurements.fig",
+                f"Detector Measurements z, position in frame (x-axis)",
+                "Time (s)",
+                "Position (m)"]
+    plotTimeSeries(ts, cys, labels1)
+    plotTimeSeries(ts, cxs, labels2)
+    plt.show()
 
 if __name__ == "__main__":
-    grapher = Grapher()
-    dataloader = Dataloader()
-    dataloader2 = Dataloader()
-    config_path = "./configurations/lemur_sticky_sport2.json"
-    config = loadConfig(config_path)
-    dataloader.loadMeasurements(f"{config['measurements_output'][:-4]}_lower{config['measurements_output'][-4:]}")
-    dataloader2.loadMeasurements(f"{config['measurements_output'][:-4]}_upper{config['measurements_output'][-4:]}")
+    pass
+    # dataloader = Dataloader()
+    # dataloader2 = Dataloader()
+    # config_path = "./configurations/lemur_sticky_sport2.json"
+    # config = loadConfig(config_path)
+    # dataloader.loadMeasurements(f"{config['measurements_output'][:-4]}_lower{config['measurements_output'][-4:]}")
+    # dataloader2.loadMeasurements(f"{config['measurements_output'][:-4]}_upper{config['measurements_output'][-4:]}")
 
-    start = config['t_start']
-    end = config['t_end']
+    # start = config['t_start']
+    # end = config['t_end']
     
-    t1, z1 = dataloader.time, dataloader.cy
-    t2, z2 = dataloader2.time, dataloader2.cy
-    r1_seg = z1[start:end]
-    r2_seg = z2[start:end]
+    # t1, z1 = dataloader.time, dataloader.cy
+    # t2, z2 = dataloader2.time, dataloader2.cy
+    # r1_seg = z1[start:end]
+    # r2_seg = z2[start:end]
     
-    measurements = []
-    for i in range(len(t1)):
-        z = (z2[i] - sqrt(mean(square(r2_seg)))) - (z1[i] - sqrt(mean(square(r1_seg))))
-        measurements.append(z)
+    # measurements = []
+    # for i in range(len(t1)):
+    #     z = (z2[i] - sqrt(mean(square(r2_seg)))) - (z1[i] - sqrt(mean(square(r1_seg))))
+    #     measurements.append(z)
     
-    print("Measurement mean(z) = ", mean(r1_seg))
-    print(f"Measurement Varience var(z) = {var(r1_seg)}")
-    print(f"Measurement Standard Deviation std(z) = {std(r1_seg)}")
-    print(f"Initial Position = {r1_seg[0]}")
-    print("Measurement mean(z) = ", mean(r2_seg))
-    print(f"Measurement Varience var(z) = {var(r2_seg)}")
-    print(f"Measurement Standard Deviation std(z) = {std(r2_seg)}")
-    print(f"Initial Position = {r2_seg[0]}")
+    # print("Measurement mean(z) = ", mean(r1_seg))
+    # print(f"Measurement Varience var(z) = {var(r1_seg)}")
+    # print(f"Measurement Standard Deviation std(z) = {std(r1_seg)}")
+    # print(f"Initial Position = {r1_seg[0]}")
+    # print("Measurement mean(z) = ", mean(r2_seg))
+    # print(f"Measurement Varience var(z) = {var(r2_seg)}")
+    # print(f"Measurement Standard Deviation std(z) = {std(r2_seg)}")
+    # print(f"Initial Position = {r2_seg[0]}")
     
-    # grapher.plotMeasurements(f"{config_path}_lower", f"{config['graph_output']}_lower", dataloader.time[start:end], (dataloader.cy[start:end] - sqrt(mean(square(dataloader.cy[start:end])))))
-    # grapher.plotMeasurements(f"{config_path}_upper", f"{config['graph_output']}_upper", dataloader2.time[start:end], (dataloader2.cy[start:end] - sqrt(mean(square(dataloader2.cy[start:end])))))
+    # # grapher.plotMeasurements(f"{config_path}_lower", f"{config['graph_output']}_lower", dataloader.time[start:end], (dataloader.cy[start:end] - sqrt(mean(square(dataloader.cy[start:end])))))
+    # # grapher.plotMeasurements(f"{config_path}_upper", f"{config['graph_output']}_upper", dataloader2.time[start:end], (dataloader2.cy[start:end] - sqrt(mean(square(dataloader2.cy[start:end])))))
     
-    grapher.plotMeasurements(f"{config_path}_lower", f"{config['graph_output']}_lower", t1, (z1 - sqrt(mean(square(r1_seg)))))
-    grapher.plotMeasurements(f"{config_path}_upper", f"{config['graph_output']}_upper", t2, (z2 - sqrt(mean(square(r2_seg)))))
-    grapher.plotMeasurements(config_path, config['graph_output'], t2, measurements)
+    # # grapher.plotMeasurements(f"{config_path}_lower", f"{config['graph_output']}_lower", t1, (z1 - sqrt(mean(square(r1_seg)))))
+    # # grapher.plotMeasurements(f"{config_path}_upper", f"{config['graph_output']}_upper", t2, (z2 - sqrt(mean(square(r2_seg)))))
+    # # grapher.plotMeasurements(config_path, config['graph_output'], t2, measurements)
     
-    full_data = zip(list(range(0, len(t1))), t1, dataloader2.dt, dataloader2.cx, measurements, dataloader2.width, dataloader2.height)
-    header = ["index", "time", "dt", "Center (x-axis)", "Center (y-axis)", "box width", "box height"]
-    dataloader.storeData(full_data, header, f"{config['measurements_output']}")
-    plt.show()
+    # full_data = zip(list(range(0, len(t1))), t1, dataloader2.dt, dataloader2.cx, measurements, dataloader2.width, dataloader2.height)
+    # header = ["index", "time", "dt", "Center (x-axis)", "Center (y-axis)", "box width", "box height"]
+    # dataloader.storeData(full_data, header, f"{config['measurements_output']}")
+    # plt.show()

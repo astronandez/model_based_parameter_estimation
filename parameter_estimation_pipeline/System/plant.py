@@ -3,11 +3,11 @@ from numpy import ndarray
 import matplotlib.pyplot as plt
 import os
 
-from System.Model.system import System
-from System.plant_history import PlantHistory
+from ..System.Model.system import System
+from ..System.plant_history import PlantHistory
 
 # For Testbench
-from System.Model.models import SimpleHarmonicOscillator
+from ..System.Model.models import SimpleHarmonicOscillator
 
 class Plant:
     def __init__(self, s: System, x0: ndarray, noisy: bool):

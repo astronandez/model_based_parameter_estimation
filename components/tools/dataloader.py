@@ -10,7 +10,7 @@ class Dataloader:
         self.directory = directory
         os.makedirs(self.directory, exist_ok=True)
         
-    def save(self, data, header):
+    def save(self, data: dict, header: list):
         for id, rows in data.items():
             csv_file = os.path.join(self.directory, f"obj_{id}_{time.strftime('%Y%m%d_%H%M%S')}.csv")
             file_exists = os.path.isfile(csv_file)
@@ -21,3 +21,15 @@ class Dataloader:
                     writer.writerow(header)
                 
                 writer.writerows(rows)
+                
+    def load(self, path: str):
+        data = loadtxt(path, delimiter=',', skiprows=1)
+        
+        times = array([row[0] for row in data])
+        dts = array([row[1] for row in data])
+        cxs = array([row[2] for row in data])
+        cys = array([row[3] for row in data])
+        widths = array([row[4] for row in data])
+        heights = array([row[5] for row in data])
+        
+        return times, dts, cxs, cys, widths, heights

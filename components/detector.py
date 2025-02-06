@@ -4,8 +4,8 @@ import cv2 as cv
 from numpy import array, argmax
 os.environ['YOLO_VERBOSE'] = 'False'
 from ultralytics import YOLO
-from tracker import Tracker
-from tools.common import loadConfig
+from components.tracker import Tracker
+from components.tools.common import loadConfig
 
 class Detector:
     model: YOLO
@@ -19,10 +19,10 @@ class Detector:
         self.frame_h = config['frame_h']
     
     def measurement(self, frame: cv.Mat):
-        detections = self.detector.track(frame, conf=0.6, iou=0.5, imgsz=(self.frame_w, self.frame_h), persist=True)
-        count = detections[0].boxes.xywh.numpy()
+        detections = self.detector.track(frame, conf=0.6, iou=0.5, imgsz=(self.frame_w, self.frame_h), persist=False)
+        ids = detections[0].boxes.id
         
-        if len(count) > 0:
+        if ids is not None:
             objs = self.tracker.newDetections(detections)
             return objs
         else:

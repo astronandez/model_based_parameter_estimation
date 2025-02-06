@@ -2,7 +2,7 @@ from numpy import ndarray
 import numpy as np
 import matplotlib.pyplot as plt
 
-from System.system_simulator import SystemSimulator
+from ...System.system_simulator import SystemSimulator
 from ..Estimator_Likelihood.estimator_likelihood import EstimatorLikelihood
 from .conditional_probability_update import ConditionalProbabilityUpdate
 

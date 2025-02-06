@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from .conditional_probability_update import ConditionalProbabilityUpdate
 from .weighted_estimate import WeightedEstimate
-from System.system_simulator import SystemSimulator
+from ...System.system_simulator import SystemSimulator
 from ..Estimator_Likelihood.estimator_likelihood import EstimatorLikelihood
 
 class JointProbability:

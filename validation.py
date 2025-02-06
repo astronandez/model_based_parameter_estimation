@@ -1,161 +1,136 @@
-from numpy import ndarray, linspace, arange, array,zeros
+import sys
+from numpy import arange, newaxis
 from numpy.random import seed
 from parameter_estimation_pipeline.System.system_simulator import SystemSimulator
+from parameter_estimation_pipeline.System.Model.system import System
 from parameter_estimation_pipeline.MMAE.mmae import MMAE
-from evaluation import Evaluation
-from components.tools.grapher import Grapher
 from components.tools.common import *
+from components.tools.grapher import plotValidateSyntheticSystems         
+                
+def loop(simulators: list[SystemSimulator], t, u, dt, mmaes: list[MMAE] = []):
+    sim_xs = []
+    sim_zs = []
+    sim_vs = []
+    sim_ws = []
+    sim_λ_hats = []
+    sim_posteriors = []
+    sim_pdvs = []
 
-def loopSimulators(simulators: list[SystemSimulator], mmaes: list[MMAE], t, u, dt):
-    compiled_simulation_xs = []
-    compiled_simulation_zs = []
-    compiled_simulation_vs = []
-    compiled_simulation_λ_hats = []
-    compiled_simulation_posteriors = []
-    compiled_pdvs_summary = []
-    
     for i in range(len(simulators)):
-        sim_xs = []
-        sim_zs = []
-        sim_vs = []
-        sim_post = []
-        sim_λhat = []
-        sim_pdvs = []
+        cur_xs = []
+        cur_zs = []
+        cur_vs = []
+        cur_ws = []
+        cur_post = []
+        cur_λhat = []
+        cur_pdvs = []
+        
+        for j in range(len(t)):
+            x, z = simulators[i].update([u[j]], dt)
+            
+            if mmaes:
+                λ_hat, cumulative_posteriors, pdvs = mmaes[i].update(u[j], z, dt)
+                cur_post.append(cumulative_posteriors)
+                cur_pdvs.append(pdvs)
+                cur_λhat.append(λ_hat)
+                
+            cur_vs.append(simulators[i].plant.h.v[-1].flatten())
+            cur_ws.append(simulators[i].plant.h.w[-1].flatten())
+            cur_xs.append(x.flatten())
+            cur_zs.append(z.flatten()) 
+            
+        if mmaes:
+            sim_posteriors.append(cur_post)
+            sim_pdvs.append(cur_pdvs)
+            sim_λ_hats.append(cur_λhat)
+        
+        sim_xs.append(cur_xs)
+        sim_zs.append(cur_zs)
+        sim_vs.append(cur_vs)
+        sim_ws.append(cur_ws)
+        
+    return sim_xs, sim_zs, sim_vs, sim_ws, sim_λ_hats, sim_posteriors, sim_pdvs
 
-        for k in range(len(t)):
-            x, z = simulators[i].update(u[k], dt)
-            λ_hat, cumulative_posteriors, pdvs = mmaes[i].update(u[k], z, dt)
-
-            sim_post.append(cumulative_posteriors)
-            sim_pdvs.append(pdvs)
-            sim_λhat.append(λ_hat)
-            sim_vs.append(simulators[i].plant.h.v[-1])
-            sim_xs.append(x)
-            sim_zs.append(z.flatten())
-        
-        compiled_simulation_posteriors.append(sim_post)
-        compiled_pdvs_summary.append(sim_pdvs)
-        compiled_simulation_λ_hats.append(sim_λhat)
-        compiled_simulation_xs.append(sim_xs)
-        compiled_simulation_zs.append(sim_zs)
-        compiled_simulation_vs.append(sim_vs)
-
-        
-    return compiled_simulation_xs, compiled_simulation_zs, compiled_simulation_vs, compiled_simulation_λ_hats, compiled_pdvs_summary, compiled_simulation_posteriors
-
-def validationMetrics(zs):
-    z_vars = []
-    z_stds = []
-    z_mus = []
-    
-    for i in range(len(zs)):
-        print(zs[i])
-        z_sim = array(zs[i])
-        z_mu = mean(z_sim)
-        z = z_mu - z_sim
-        z_var = var(z)
-        z_std = std(z)
-        
-        z_vars.append(z_var)
-        z_stds.append(z_std)
-        z_mus.append(z_mu)
-        print(f"Simulation {i}")
-        print("Measurement mean(z) = ", z_mu)
-        print(f"Measurement Varience(z) = {z_var}")
-        print(f"Measurement Standard Deviation(z)  = {z_std}")
-        
-    # print("Measurement mean(z) = ", mean(z_mus))
-    # print(f"Measurement Varience(z) = {mean(z_vars)}")
-    # print(f"Measurement Standard Deviation(z)  = {mean(z_stds)}")
-        
-    return z_vars, z_stds, z_mus
-    
-def validationSyntheticSystems(config_path, t, u, graph_path):
+def makeSyntheticSystems(config):
     seed(42)
-    grapher = Grapher()
-    config, m, k, b, true_Q, true_R, λs, dt, H, Qs, Rs, x0 = level1Setup(config_path)
-    mmaes: list[MMAE] = []
+    m, k, b, Q, R, λs, dt, H, Qvar, Rvar, x0 = defaultSetup(config)
     systems: list[SystemSimulator] = []
-    models = []
-    true_λs = []
-
-    for i in λs:
-        for j in Qs:
-            for k in Rs:
-                Q = eye(H.shape[1]) * j
-                R = eye(H.shape[0]) * k
-                s = SystemSimulator(i, dt, H, true_Q, true_R, x0, True)
-                mmae = MMAE(λs, dt, H, Q, R, x0, False)
-
-                true_λs.append(array([m,k,b]))
-                mmaes.append(mmae)
+    models: list[System] = []
+    for λ in λs:
+        for i in Qvar:
+            for j in Rvar:
+                Qk = eye(H.shape[1]) * i
+                Rk = eye(H.shape[0]) * j
+                s = SystemSimulator(λ, dt, H, Qk, Rk, x0, True)
                 systems.append(s)
                 models.append(s.model)
+    
+    return systems, models
 
-    compiled_simulation_xs, compiled_simulation_zs, compiled_simulation_vs, compiled_simulation_λ_hats, compiled_pdvs_summary, compiled_simulation_posteriors = loopSimulators(systems, mmaes, t, u, config["dt"])
-    grapher.plotGeneratedSystems(graph_path, config_path, t, u, compiled_simulation_zs, models, config['plot_every'])
-    for i in range(len(compiled_simulation_λ_hats)):
-        grapher.plot_λ_hat(config_path, graph_path, t, compiled_simulation_λ_hats[i], array([m, k, b]))
-        # grapher.plot_heatmap(f"{graph_path}_Likelihood", pdvs_summary, times, evaluation.model_variants, title=f"{config_path}: Heatmap of Model Likelihood Over Time")
-        # grapher.plot_heatmap(f"{graph_path}_Posteriors", cumulative_posteriors_summary, times, evaluation.model_variants, title=f"{config_path}: Heatmap of Cumulative Posterior Probabilities Over Time")
-    z_vars, z_stds, z_mus = validationMetrics(compiled_simulation_vs)
-
-def validationRealSystem(config_path, graph_path, start = None, end = None):
-    grapher = Grapher()
-    dataloader = Dataloader()
-    evaluations: list[Evaluation] = []
-    models = []
+def validateSyntheticSystems(config, output_path, t, u, dt, reso, labels):
+    systems, models = makeSyntheticSystems(config)
+    sim_xs, sim_zs, sim_vs, sim_ws, _, _, _ = loop(systems, t, u, dt)
+    plotValidateSyntheticSystems(models, sim_zs, t, u, reso, labels)
     
-    config, λs, dt, H, Qs, Rs, x0 = level1Setup(config_path)
-    dataloader.loadMeasurements(config['measurements_output'])
-    t = dataloader.time[start:end] - dataloader.time[start]
-    dts = dataloader.dt[start:end]
-    z = dataloader.cy[start:end] - mean(dataloader.cy[start:end])
-    u = [array([[0]]) for _ in range(len(t))]
+    sys.stdout = open(output_path, 'w')
+    for i in range(len(sim_vs)):
+        mean_v = mean(sim_vs[i])
+        var_v = var(sim_vs[i])
+        stdd_v = std(sim_vs[i])
+        
+        mean_w = mean(sim_ws[i])
+        var_w = var(sim_ws[i])
+        stdd_w = std(sim_ws[i])
+        
+        print(f"Model: m:{systems[i].model.m}, k:{systems[i].model.k}, b:{systems[i].model.b}, Q:{systems[i].model.Q[0,0]}, R:{systems[i].model.R[0,0]}")
+        print("===== Measurement Noise Metrics =====")
+        print("Mean of v:", mean_v) 
+        print("Variance of v:", var_v)
+        print("Standard Deviation of v:", stdd_v)
+        print("======== System Noise Metrics =======")
+        print("Mean of w:", mean_w) 
+        print("Variance of w:", var_w)
+        print("Standard Deviation of w:", stdd_w, "\n")   
+    sys.stdout.close()
     
-    for i in λs:
-        for j in Qs:
-            for k in Rs:
-                Q = eye(H.shape[1]) * j
-                R = eye(H.shape[0]) * k
-                evaluation = Evaluation(config, λs, dt, H, Q, R, x0, False)
-                evaluations.append(evaluation)
-                for m in evaluation.mmae.EstimatorLikelihoods:
-                    models.append(m.Estimator.SystemSimulator.model)
-
-    
-    compiled_evaluation_zs = []
-    for i in range(len(evaluations)):
-        times, observed_z, estimator_ẑs, lambda_hats, pdvs_summary, cumulative_posteriors_summary = evaluations[i].run(dts, z)
-        compiled_evaluation_zs.append(observed_z)
-    
-    grapher.plotGeneratedSystems(graph_path, config_path, t, u, compiled_evaluation_zs, models, 1, z)
-    z_vars, z_stds, z_mus = validationMetrics(compiled_evaluation_zs)
-                   
 if __name__ == "__main__":
-    # config_path1 = './configurations/lemur_sport1.json'
-    # # config_path2 = './configurations/lemur_sport2.json'
-    # # config_path3 = './configurations/lemur_sport3.json'
-    # config1 = loadConfig(config_path1)
-    # # config2 = loadConfig(config_path2)
-    # # config3 = loadConfig(config_path3)
-    # validationRealSystem(config_path1, config1["graph_output"], 60, 95)
-    # # # validationRealSystem(config_path2, config2["graph_output"], 60, 95)
-    # # # validationRealSystem(config_path3, config3["graph_output"], 60, 95)
-    # plt.show()
+    config_level0_path = "./configuration_files/validation_configs/level0.json"
+    config_level1_path = "./configuration_files/validation_configs/level1.json"
+    config_level2_path = "./configuration_files/validation_configs/level2.json"
     
-    config_level0 = "./configurations/validation/level0.json"
-    config_level1 = "./configurations/validation/level1.json"
-    config_level2 = "./configurations/validation/level2.json"
-    config_level4 = "./configurations/validation/level4.json"
+    config_level0 = loadConfig(config_level0_path)
+    config_level1 = loadConfig(config_level1_path)
+    config_level2 = loadConfig(config_level2_path)
+            
+    level0_output = "./output/level0.txt"
+    level1_output = "./output/level1.txt"
+    level2_output = "./output/level2.txt"
     
-    start, stop, dt, amplitude = 0.0, 10.0, 0.1, 1000
-    t = arange(start, stop + dt, dt)
-    # u = impulse(len(t), 10, amplitude)
-    u = step_function(len(t), amplitude, change=int(1.0/dt))
+    start, stop, dt, amplitude, reso = 0.0, 10.0, 0.05, 2000, 1
+    t = arange(start, stop + dt, dt)[:, newaxis]
+    # u = impulse(len(t), 0, amplitude, dt)
+    u = ramp(t, 1, amplitude)
+    # u = step_function(len(t), amplitude, change=0)
     
-    validationSyntheticSystems(config_level4, t, u, "./runs/validation_tests/level4")
-    # validationSyntheticSystems(config_level1, t, u, "./runs/validation_tests/level1")
-    # validationSyntheticSystems(config_level2, t, u, "./runs/validation_tests/level2")
-    # validationSyntheticSystems()
+    labels0 = ["./graphs/level0_dt_0_05.fig",
+             f"Validation Graph of {config_level0}: R = 0, Q = 0",
+              "Time (s)",
+              "Displacement (m)",
+              "Force(N)"]
+    
+    labels1 = ["./graphs/level1_dt_0_05.fig",
+             f"Validation Graph of {config_level1}: Varying R, Q = 0",
+              "Time (s)",
+              "Displacement (m)",
+              "Force(N)"]
+    
+    labels2 = ["./graphs/level2_dt_0_05.fig",
+             f"Validation Graph of {config_level2}: R = 0 , Varying Q",
+              "Time (s)",
+              "Displacement (m)",
+              "Force(N)"]
+    
+    validateSyntheticSystems(config_level0, level0_output, t, u, dt, reso, labels0)
+    validateSyntheticSystems(config_level1, level1_output, t, u, dt, reso, labels1)
+    validateSyntheticSystems(config_level2, level2_output, t, u, dt, reso, labels2)
     plt.show()

@@ -1,0 +1,360 @@
+Model: m:3400.0, k:17000.0, b:3000.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 2.357280072373933e-06
+Variance of v: 1.0580926778678625e-09
+Standard Deviation of v: 3.252833653705431e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:17000.0, b:3000.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 2.4839300750322674e-05
+Variance of v: 5.374929379496772e-08
+Standard Deviation of v: 0.00023183893934144827
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:17000.0, b:3000.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: -1.2081551764391403e-05
+Variance of v: 9.57774792196003e-08
+Standard Deviation of v: 0.0003094793680031034
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:17000.0, b:3500.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 1.0480357891815965e-06
+Variance of v: 8.0907653060627e-10
+Standard Deviation of v: 2.8444270611254387e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:17000.0, b:3500.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 1.6112435956448148e-05
+Variance of v: 4.817445958315304e-08
+Standard Deviation of v: 0.0002194868095880776
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:17000.0, b:3500.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: 3.092795770318899e-05
+Variance of v: 1.0288094785583817e-07
+Standard Deviation of v: 0.0003207506007100192
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:20000.0, b:3000.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 9.624829600104116e-07
+Variance of v: 1.0626914737103862e-09
+Standard Deviation of v: 3.259894896634531e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:20000.0, b:3000.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 2.482896812509892e-06
+Variance of v: 4.692494395588175e-08
+Standard Deviation of v: 0.00021662166086493232
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:20000.0, b:3000.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: 3.984516389631146e-06
+Variance of v: 9.481958702123794e-08
+Standard Deviation of v: 0.00030792789256778595
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:20000.0, b:3500.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: -9.415905100345382e-07
+Variance of v: 1.027097493356014e-09
+Standard Deviation of v: 3.2048361788959104e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:20000.0, b:3500.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 1.094484775076387e-06
+Variance of v: 5.5206730602352326e-08
+Standard Deviation of v: 0.00023496112572583646
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3400.0, k:20000.0, b:3500.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: 2.1084315306377836e-05
+Variance of v: 9.839073956816785e-08
+Standard Deviation of v: 0.0003136729818906433
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:17000.0, b:3000.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: -1.2200328504375853e-07
+Variance of v: 1.0291619917259764e-09
+Standard Deviation of v: 3.208055472908747e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:17000.0, b:3000.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 1.4580728650757542e-05
+Variance of v: 6.154203831681126e-08
+Standard Deviation of v: 0.0002480766783009061
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:17000.0, b:3000.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: 1.4806605668881483e-05
+Variance of v: 9.122553965110815e-08
+Standard Deviation of v: 0.0003020356595687141
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:17000.0, b:3500.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 5.618535339350781e-09
+Variance of v: 8.273872678447377e-10
+Standard Deviation of v: 2.8764340212226972e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:17000.0, b:3500.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: -1.660823971833113e-05
+Variance of v: 4.2432291131463625e-08
+Standard Deviation of v: 0.00020599099769519935
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:17000.0, b:3500.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: -1.148903863955288e-05
+Variance of v: 9.653100226484248e-08
+Standard Deviation of v: 0.0003106943872438678
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:20000.0, b:3000.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: -3.79625421337465e-06
+Variance of v: 9.736875526756044e-10
+Standard Deviation of v: 3.12039669381251e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:20000.0, b:3000.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: -5.756268710984493e-06
+Variance of v: 4.8645922598321494e-08
+Standard Deviation of v: 0.00022055820682604738
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:20000.0, b:3000.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: -1.4624740222956719e-05
+Variance of v: 9.559201211243346e-08
+Standard Deviation of v: 0.0003091795790676245
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:20000.0, b:3500.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: -8.651884887280084e-07
+Variance of v: 9.85449215327715e-10
+Standard Deviation of v: 3.139186543242875e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:20000.0, b:3500.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: -2.300682031742827e-05
+Variance of v: 5.008909066372344e-08
+Standard Deviation of v: 0.0002238059218692022
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3500.0, k:20000.0, b:3500.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: -2.7656505386838018e-05
+Variance of v: 1.1459684370245415e-07
+Standard Deviation of v: 0.0003385215557426944
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:17000.0, b:3000.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 1.0745613656025741e-06
+Variance of v: 1.1481181321564997e-09
+Standard Deviation of v: 3.3883891927529515e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:17000.0, b:3000.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: -7.788283900759478e-06
+Variance of v: 4.873545614908357e-08
+Standard Deviation of v: 0.00022076108386462405
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:17000.0, b:3000.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: -3.593913122017474e-06
+Variance of v: 8.87317780667292e-08
+Standard Deviation of v: 0.00029787879761193007
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:17000.0, b:3500.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 1.680393804773735e-06
+Variance of v: 8.713418441522535e-10
+Standard Deviation of v: 2.9518500032221376e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:17000.0, b:3500.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: -7.920154984983011e-07
+Variance of v: 4.787306057155856e-08
+Standard Deviation of v: 0.00021879913293145967
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:17000.0, b:3500.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: -1.644314044534216e-05
+Variance of v: 1.0041235605578066e-07
+Standard Deviation of v: 0.00031687908743838027
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:20000.0, b:3000.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 2.660646697276846e-06
+Variance of v: 9.586490523530634e-10
+Standard Deviation of v: 3.096205827061669e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:20000.0, b:3000.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 1.1659759953548437e-05
+Variance of v: 5.943059732595266e-08
+Standard Deviation of v: 0.000243783915232225
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:20000.0, b:3000.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: 1.9236538149966724e-05
+Variance of v: 9.77575164011432e-08
+Standard Deviation of v: 0.00031266198425958854
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:20000.0, b:3500.0, Q:0.0, R:1e-09
+===== Measurement Noise Metrics =====
+Mean of v: 8.903784648991414e-07
+Variance of v: 1.0275177873607926e-09
+Standard Deviation of v: 3.205491830220119e-05
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:20000.0, b:3500.0, Q:0.0, R:5.1e-08
+===== Measurement Noise Metrics =====
+Mean of v: 8.972452893218106e-06
+Variance of v: 5.019491818892281e-08
+Standard Deviation of v: 0.0002240422241206394
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+
+Model: m:3600.0, k:20000.0, b:3500.0, Q:0.0, R:1.0099999999999999e-07
+===== Measurement Noise Metrics =====
+Mean of v: 6.06323345780737e-06
+Variance of v: 9.737992031552977e-08
+Standard Deviation of v: 0.0003120575592988091
+======== System Noise Metrics =======
+Mean of w: 0.0
+Variance of w: 0.0
+Standard Deviation of w: 0.0 
+

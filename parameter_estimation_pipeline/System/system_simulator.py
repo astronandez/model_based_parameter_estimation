@@ -3,13 +3,14 @@ from numpy import ndarray
 import matplotlib.pyplot as plt
 import os
 
-from .Model.models import MultivariableSimpleHarmonicOscillator
-from .plant import Plant
+from ..System.Model.models import MultivariableSimpleHarmonicOscillator, MultivariableSimpleHarmonicOscillator2D
+from ..System.plant import Plant
 
 class SystemSimulator:
     def __init__(self, λ, dt, H, Q, R, x0, noisy):
         # Model initialization
         self.model = MultivariableSimpleHarmonicOscillator(λ, dt, H, Q, R)
+        # self.model = MultivariableSimpleHarmonicOscillator2D(λ, dt, H, Q, R)
 
         # Plant initialization
         self.plant = Plant(self.model, x0, noisy)

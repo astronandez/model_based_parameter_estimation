@@ -1,81 +1,132 @@
-import json
-import csv
-from numpy import array, mean
+import sys
+from numpy import array, mean, ndarray, empty
 from parameter_estimation_pipeline.MMAE.mmae import MMAE
+from generator import defaultMeasurementGeneration
 from components.tools.common import *
 
 class Evaluation:
     mmae: MMAE
-    true_parameter: float
-    model_variants: list[float]
-    
-    def __init__ (self, config, λs, dt, H, Q, R, x0, noisy):
-        self.config = config
-        mmae = MMAE(λs, dt, H, Q, R, x0, noisy)
-        self.mmae = mmae
+    model_variants: list[ndarray]
+
+    def __init__(self, evaluation_config):
+        m, k, b, Q, R, λs, dt, H, Qs, Rs, x0 = defaultSetup(evaluation_config)
+        self.mmae = MMAE(λs, dt, H, Q, R, x0, False)
         self.model_variants = λs
-        
-    def nextMeasurement(self, dt, z):
+    
+    def update(self, dt, z):
+        # u = array([[0.0], [0.0]])
         u = array([[0.0]])
         z = array([[z]])
         λ_hat, cumulative_posteriors, pdvs = self.mmae.update(u, z, dt)
         return λ_hat, cumulative_posteriors, pdvs
     
     def run(self, dts, zs):
-        time_track = 0.0
-        λ_final = 0
-        observed_z = []
-        estimator_ẑs = []
-        times = []
-        cumulative_posteriors_summary = []
-        lambda_hats = []
-        pdvs_summary = []
-        
+        run_post = []
+        run_λ_hat = []
+        run_pdvs = []
+        print(zs)
         for dt, z in zip(dts, zs):
-            λ_hat, cumulative_posteriors, pdvs = self.nextMeasurement(dt, z)
-            λ_final = λ_hat
-            print(λ_hat)
+            λ_hat, cumulative_posteriors, pdvs = self.update(dt, z)
+            run_post.append(cumulative_posteriors)
+            run_λ_hat.append(λ_hat)
+            run_pdvs.append(pdvs)
             
-            cumulative_posteriors_summary.append(cumulative_posteriors)
-            pdvs_summary.append(pdvs)
-            lambda_hats.append(λ_hat)
-            time_track += dt
-            times.append(time_track)
-            observed_z.append(z)
-        
-        cumulative_posteriors_summary = array(cumulative_posteriors_summary)
-        pdvs_summary = array(pdvs_summary)
-        observed_z = array(observed_z)
-        estimator_ẑs = array(estimator_ẑs)
-        
-        print(f'Final Parameter Estimates: {λ_final}')
-        return times, observed_z, estimator_ẑs, lambda_hats, pdvs_summary, cumulative_posteriors_summary    
+        return array(run_λ_hat), array(run_post), array(run_pdvs)
 
 if __name__ == "__main__":
-    from components.tools.grapher import Grapher, plt
-    from components.tools.dataloader import Dataloader 
     
-    def evaluationTestbench(config, measurements_path, λs, m, k, b, dt, H, Q, R, x0, graph_path, start = None, end = None):
-        dataloader = Dataloader()
-        grapher = Grapher()
-        evaluation = Evaluation(config, λs, dt, H, Q, R, x0, False)
-        
-        dataloader.loadMeasurements(measurements_path)
-        t = dataloader.time[start:end]
-        dts = dataloader.dt[start:end]
-        z = dataloader.cy[start:end]
-        
-        times, observed_z, estimator_ẑs, lambda_hats, pdvs_summary, cumulative_posteriors_summary = evaluation.run(dts, z)
-        true_λ = [m, k, b]
-        grapher.plotMeasurements(config_path, graph_path, t, z)
-        grapher.plot_λ_hat(config_path, graph_path, times, lambda_hats, true_λ)
-        grapher.plot_heatmap(f"{graph_path}_Likelihood", pdvs_summary, times, evaluation.model_variants, title=f"{config_path}: Heatmap of Model Likelihood Over Time")
-        grapher.plot_heatmap(f"{graph_path}_Posteriors", cumulative_posteriors_summary, times, evaluation.model_variants, title=f"{config_path}: Heatmap of Cumulative Posterior Probabilities Over Time")
+    def defaultEvaluation(camera_config, detector_config, evaluation_config):
+        ts, dts, cxs, cys = defaultMeasurementGeneration(camera_config, detector_config)
     
-    grapher = Grapher()
-    config_path = './configurations/lemur_sticky_sport_load.json'
-    config, λs, m, k, b, dt, H, Q, R, x0 = evaluationSetup(config_path)
-    # measurements_path = f"{config['measurements_output'][:-4]}_upper{config['measurements_output'][-4:]}"
-    measurements_path = config['measurements_output']
-    evaluationTestbench(config_path, measurements_path, λs, m, k, b, dt, H, Q, R, x0, config["graph_output"], 0 ,-1)
-    plt.show()
+        exp_name = "m105_5_k80_80"
+        inspectData(exp_name, ts, dts, cxs, cys)
+        sys.stdout = open(f"./output/{exp_name}.txt", 'w')
+        mean_y = mean(cys)
+        var_y = var(cys - mean_y)
+        stdd_y = std(cys - mean_y)
+        
+        mean_x = mean(cxs)
+        var_x = var(cxs - mean_x)
+        stdd_x = std(cxs - mean_x)
+        
+        print("===== Measurement Noise Metrics =====")
+        print("Mean of y position:", mean_y) 
+        print("Variance of y position:", var_y)
+        print("Standard Deviation of y position:", stdd_y)
+        print("======== System Noise Metrics =======")
+        print("Mean of x position:", mean_x) 
+        print("Variance of x position:", var_x)
+        print("Standard Deviation of x position:", stdd_x, "\n")
+        
+        dataloader = Dataloader("./output/")
+        ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{exp_name}.csv")
+        evaluation = Evaluation(evaluation_config)
+        label_lambda = [f"./graphs/{exp_name}_estimations.fig",
+                        f'{exp_name}: Parameter Estimates (m, k, b) vs Time']
+        label_likely = [f"./graphs/{exp_name}_likelyhoods.fig",
+                        f'{exp_name}: Heatmap of Model Likelihood Over Time']
+        label_poster = [f"./graphs/{exp_name}_posteriors.fig",
+                        f'{exp_name}: Heatmap of Cumulative Posterior Probabilities Over Time']
+        
+        run_λ_hat, run_post, run_pdvs = evaluation.run(dts, cys)
+        plotLambdaHat(ts, run_λ_hat, [evaluation_config["true_m"], evaluation_config["true_k"],evaluation_config["true_b"]], label_lambda)
+        plotHeatmap(run_pdvs, ts, evaluation.model_variants, label_likely)
+        plotHeatmap(run_post, ts, evaluation.model_variants, label_poster)
+        plt.show()
+     
+    def default2DEvaluation(camera_config, detector_config, evaluation_config):
+        ts, dts, cxs, cys = defaultMeasurementGeneration(camera_config, detector_config)
+    
+        exp_name = "m105_5_k80_80"
+        inspectData(exp_name, ts, dts, cxs, cys)
+        sys.stdout = open(f"./output/{exp_name}.txt", 'w')
+        mean_y = mean(cys)
+        var_y = var(cys - mean_y)
+        stdd_y = std(cys - mean_y)
+        
+        mean_x = mean(cxs)
+        var_x = var(cxs - mean_x)
+        stdd_x = std(cxs - mean_x)
+        
+        print("===== Measurement Noise Metrics =====")
+        print("Mean of y position:", mean_y) 
+        print("Variance of y position:", var_y)
+        print("Standard Deviation of y position:", stdd_y)
+        print("======== System Noise Metrics =======")
+        print("Mean of x position:", mean_x) 
+        print("Variance of x position:", var_x)
+        print("Standard Deviation of x position:", stdd_x, "\n")
+        
+        dataloader = Dataloader("./output/")
+        ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{exp_name}.csv")
+        
+        zs = empty((2, 2), dtype=object)
+
+        # Assign cys to position (0,0) and cxs to (1,0)
+        zs[0, 0] = cxs
+        zs[1, 0] = cys
+        
+        evaluation = Evaluation(evaluation_config)
+        label_lambda = [f"./graphs/{exp_name}_estimations.fig",
+                        f'{exp_name}: Parameter Estimates (m, k, b) vs Time']
+        label_likely = [f"./graphs/{exp_name}_likelyhoods.fig",
+                        f'{exp_name}: Heatmap of Model Likelihood Over Time']
+        label_poster = [f"./graphs/{exp_name}_posteriors.fig",
+                        f'{exp_name}: Heatmap of Cumulative Posterior Probabilities Over Time']
+        
+        run_λ_hat, run_post, run_pdvs = evaluation.run(dts, zs)
+        plotLambdaHat(ts, run_λ_hat, [evaluation_config["true_m"], evaluation_config["true_k"],evaluation_config["true_b"]], label_lambda)
+        plotHeatmap(run_pdvs, ts, evaluation.model_variants, label_likely)
+        plotHeatmap(run_post, ts, evaluation.model_variants, label_poster)
+        plt.show()
+        
+    evaluation_config_path = "./configuration_files/evaluation_config.json"
+    camera_config_path = "./configuration_files/camera_configs/camera_generator.json"
+    detector_config_path = "./configuration_files/detector_configs/detector_base.json"
+    
+    evaluation_config = loadConfig(evaluation_config_path)
+    camera_config = loadConfig(camera_config_path)
+    detector_config = loadConfig(detector_config_path)
+    
+    defaultEvaluation(camera_config, detector_config, evaluation_config)
+    # default2DEvaluation(camera_config, detector_config, evaluation_config)

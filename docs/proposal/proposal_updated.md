@@ -32,15 +32,17 @@ Several advancements in CV have dramatically improved the granularity of detecti
 
 This research project was proposed as a solution for General Electric (GE) and their DARPA sponsored project Automated-Domain Understanding and Collaborative Agency (ADUCA). ADUCA's goal is the unsupervised extraction of conceptual knowledge contained within images and videos for artificial intelligence (AI) gathering. One such avenue is considering the physical phenomenon that is exhibited by the subject. While object detection strategies exist, these implementations only capture qualitative information present in the 2D medium, effectively losing most quantitative information conveyed by the subject.
 
-To address this problem, we propose our implementation of parameter estimation using traditional Kalman Filter state estimation. By developing Model's (k) from traditional physics equations, and converting into our Systems (S) mandated in {A, B, H, Q, R} matrix format, we can derive variations of our matrices S(λ\_k) \= {A(λ\_k), B(λ\_k), H, Q, R}. Where λ\_k represents the parameter that we are interested in estimating and k represents the number of model variations of the value λ.
+To address this problem, we propose our implementation of parameter estimation using traditional Kalman Filter state estimation. By developing Model's ($k$) from traditional physics equations, and converting into our Systems ($S$) mandated in $\{A, B, H, Q, R\}$ matrix format, we can derive variations of our matrices $S(\lambda_k) = \{A(\lambda_k), B(\lambda_k), H, Q, R\}$. Where $\lambda_k$ represents the parameter that we are interested in estimating and k represents the number of model variations of the value λ.
 
 Then by comparing the covariance of our Kalman Filter residual, which is the difference between the observed state measurement and the predicted state. By assuming that our noise is normally distributed and gaussian such that our measurements are a product of the following relationship:
+$$
+\begin{align*}
+z = &Hx + v , v ~ N(0, R) \\
+\hat{x} = Ax &+ Bu + w , w ~ N(0, Q)
+\end{align*}
+$$
 
-z \= Hx \+ v , v \~ N(0, R)
-
-x\_hat\_ \= Ax \+ Bu \+ w , w \~ N(0, Q)
-
-With these equations, an accurate system model S(λ), and assuming that our observed noise is additive white gaussian noise (AWGN). From these relationships, we can draw a time correlation from the filter's residuals using the Multiple Model Adaptive Estimation (MMAE) algorithm to generate hypothesized conditional probabilities P(λ\_k)(t \- 1\) that can be used to evaluate the conditional densities of the current sensor measurements z.
+With these equations, an accurate system model $S(\lambda)$, and assuming that our observed noise is additive white gaussian noise (AWGN). From these relationships, we can draw a time correlation from the filter's residuals using the Multiple Model Adaptive Estimation (MMAE) algorithm to generate hypothesized conditional probabilities $P(\lambda_k)_{t - 1}$ that can be used to evaluate the conditional densities of the current sensor measurements z.
 
 From this point we will conduct further research into parameter estimation techniques to optimize an algorithm for reduced error/uncertainty, efficiency, and latency of parameter estimates.
 

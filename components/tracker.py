@@ -1,4 +1,5 @@
 from numpy import array, argmax
+from ultralytics.engine.results import Results
 
 class Tracker:
     objects: dict
@@ -49,16 +50,16 @@ class Tracker:
     def updateObjects(self, ids, names, boxes, prob_class):
         for i in range(len(boxes)):
             cx, cy, width, height = boxes[i]
-            id = ids[i]
+            id = int(ids[i])
             name = names[argmax(prob_class)]           
             self.enterObject(id, name, cx, cy, width, height)
                    
-    def newDetections(self, detections: list):
+    def newDetections(self, detections: list[Results]):
         ids = detections[0].boxes.id
         boxes = detections[0].boxes.xywh.numpy()
         names = detections[0].names
         prob_class = detections[0].probs
-        
+
         self.incrementObjectAge()
         self.updateObjects(ids, names, boxes, prob_class)
         self.removeStaleObjects()

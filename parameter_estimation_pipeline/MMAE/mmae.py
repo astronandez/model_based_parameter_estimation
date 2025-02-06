@@ -2,9 +2,9 @@ from numpy import ndarray
 import numpy as np
 import matplotlib.pyplot as plt
 
-from MMAE.Estimator_Likelihood.estimator_likelihood import EstimatorLikelihood
-from MMAE.Joint_Probability.joint_probability import JointProbability
-from System.system_simulator import SystemSimulator
+from ..MMAE.Estimator_Likelihood.estimator_likelihood import EstimatorLikelihood
+from ..MMAE.Joint_Probability.joint_probability import JointProbability
+from ..System.system_simulator import SystemSimulator
 
 class MMAE:
     def __init__(self, λs, dt, H, Q, R, x0, noisy):

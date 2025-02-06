@@ -1,0 +1,32 @@
+{
+    "run": true,
+    "display": true, 
+    "rotate": false,
+    "screen_width": 480,
+    "screen_height": 640,
+
+    "video_feed": "./runs/M200_8g_K16_0100/M200_8g_K16_0100_LEMUR.mp4v",
+    "video_out": "./runs/M200_8g_K16_0100/M200_8g_K16_0100_LEMURCV.mp4v",
+    "measurements_output": "./runs/M200_8g_K16_0100/M200_8g_K16_0100_measurements_LEMUR.csv",
+
+    "dt": 0.047705874855557884,
+    "H": [[1500, 0]],
+    "Q": 1e-1,
+    "R": 100,
+    "x0": [[-0.009122336950320649], [0]],
+
+    "true_m": 0.2008,
+    "m_variants_start": 0.01,
+    "m_variants_end": 0.3,
+    "m_variants_step": 0.01,
+
+    "true_k": 16.0100,
+    "k_variants_start": 16.0100,
+    "k_variants_end": 16.0100,
+    "k_variants_step": 1,
+
+    "true_b": 0.01,
+    "b_variants_start": 0.01,
+    "b_variants_end": 0.01,
+    "b_variants_step": 1
+}

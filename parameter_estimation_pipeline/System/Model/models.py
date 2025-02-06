@@ -1,4 +1,4 @@
-from numpy import ndarray, array, mean, square, arange, linalg, eye, allclose
+from numpy import ndarray, array, mean, square, arange, linalg, eye, allclose, diag
 from numpy.random import seed, uniform
 import matplotlib.pyplot as plt
 import os
@@ -56,6 +56,49 @@ class MultivariableSimpleHarmonicOscillator(System):
                         B = array([[0],
                                    [self.dt/self.m]]),
                         
+                        H=H,
+                        Q=Q,
+                        R=R,
+                        λ=self.λ
+        )
+    
+    def update_dt(self, dt: float):
+        self.dt = dt
+        self.m = self.λ[0]
+        self.k = self.λ[1]
+        self.b = self.λ[2]
+        self.update_matrices()
+        
+    def update_matrices(self):
+        # Recalculate the state transition matrix Φ and the input transition matrix B
+        self.Φ = array([[1, self.dt],
+                        [- (self.k * self.dt) / self.m, 1 - ((self.b / self.m) * self.dt)]])
+
+        self.B = array([[0],
+                        [self.dt/self.m]])
+
+class MultivariableSimpleHarmonicOscillator2D(System):
+    def __init__(self, λ: ndarray, dt: float, H: ndarray, Q: ndarray, R: ndarray):
+        self.λ = array(λ)
+        
+        self.λ = λ      # Parameter vector
+        self.m = λ[0]   # Mass
+        self.k = λ[1]   # Spring constant
+        self.b = λ[2]   # Damping coefficient
+        self.dt = dt    # Time step
+
+        super().__init__(
+                        # State transition matrix (A)
+                        Φ = array([[1, self.dt, 0, 0],
+                                   [- (self.k * self.dt) / self.m, 1 - ((self.b / self.m) * self.dt), 0, 0],
+                                   [0, 0, 1, self.dt],
+                                   [0, 0, - (self.k * self.dt) / self.m, 1 - ((self.b / self.m) * self.dt)]]),
+
+                        # Input transition matrix (B)
+                        B = array([[0, 0],
+                                   [self.dt/self.m, 0],
+                                   [0, 0],
+                                   [0, self.dt/self.m]]),
                         H=H,
                         Q=Q,
                         R=R,

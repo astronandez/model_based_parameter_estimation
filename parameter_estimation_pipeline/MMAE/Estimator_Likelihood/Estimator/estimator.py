@@ -4,9 +4,8 @@ from numpy import ndarray, eye, mean, var, eye
 import matplotlib.pyplot as plt
 from numpy.linalg import eigvalsh, inv
 from scipy.stats import shapiro, kstest
-from statsmodels.stats.diagnostic import acorr_ljungbox
 
-from System.system_simulator import SystemSimulator
+from ....System.system_simulator import SystemSimulator
 from .estimator_update import EstimatorUpdate
 
 class Estimator:

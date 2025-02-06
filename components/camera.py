@@ -1,7 +1,7 @@
 import json
 import cv2 as cv
 import time
-from tools.common import loadConfig
+from components.tools.common import loadConfig
 
 class Camera:
     input: str
