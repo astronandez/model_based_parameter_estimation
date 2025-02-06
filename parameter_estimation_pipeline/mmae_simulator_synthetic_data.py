@@ -5,6 +5,8 @@ from MMAE.mmae import MMAE
 from System.system_simulator import SystemSimulator
 from testbench_tools import simulation_configuration_setup
 from testbench_tools import mmae_simulator_plots
+from testbench_tools import plot_λ_hat_grid
+from testbench_tools import plot_measurements_grid
 
 class MMAESimulatorSyntheticData:
     def __init__(self, λs, true_λ, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, true_system_noisy, estimator_noisy, max_time, max_steps, amplitude):
@@ -12,7 +14,7 @@ class MMAESimulatorSyntheticData:
         self.TrueSystem = SystemSimulator(true_λ, dt, H, Q_true_system, R_true_system, x0, true_system_noisy)
 
         # Input initialization
-        self.input_signal = Input(self.TrueSystem.model, max_time).step_function(max_steps, amplitude)
+        self.input_signal = Input(self.TrueSystem.model, max_time).impulse_function(max_steps, amplitude)
 
         # MMAE initialization
         self.MMAE = MMAE(λs, dt, H, Q_mmae, R_mmae, x0, estimator_noisy)
@@ -29,29 +31,54 @@ class MMAESimulatorSyntheticData:
 
 if __name__ == "__main__":
     # Load configuration from JSON file
-    λs, m, k, b, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy = simulation_configuration_setup("../configuration_methods/parameter_estimation_configs/config_simulated_data.json")
-
+    λs, m, k, b, dt, H, test_Q_mmae, test_R_mmae, test_Q_mmae_values, test_R_mmae_values, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy = simulation_configuration_setup("../configuration_methods/parameter_estimation_configs/config_simulated_data.json")
+    
     # Set random seed
     np.random.seed(random_seed)
 
-    true_λ = np.array([m, k, b])
+    # Check if we want to test varying noise values
+    if test_Q_mmae:
+        Q_R_combinations = [(Q, R_mmae) for Q in test_Q_mmae_values]
+    elif test_R_mmae:
+        Q_R_combinations = [(Q_mmae, R) for R in test_R_mmae_values]
+    else:
+        Q_R_combinations = [(Q_mmae, R_mmae)]
 
-    # MMAE simulator initialization
-    MMAESimulator = MMAESimulatorSyntheticData(λs, true_λ, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, true_system_noisy, False, max_time, max_steps, amplitude)
+    all_lambda_hats = []
+    all_measurements = []
+    times_storage = []
 
-    # Lists to store time and λ_hat values
-    times = []
-    lambda_hats = []
-    zs = []
-    cumulative_posteriors_summary = []
-    pdvs_summary = []
+    # Loop through all combinations of Q_mmae and R_mmae
+    for Q_mmae, R_mmae in Q_R_combinations:
+        # Set random seed
+        np.random.seed(random_seed)
 
-    # Main simulation loop
-    for step_counter in range(0, max_steps):
-        λ_hat, cumulative_posteriors, pdvs = MMAESimulator.update(step_counter, dt)
-        times.append(step_counter * dt)
-        lambda_hats.append(λ_hat)
-        cumulative_posteriors_summary.append(cumulative_posteriors)
-        pdvs_summary.append(pdvs)
+        # True λ values
+        true_λ = np.array([m, k, b])
 
-    mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_posteriors_summary, pdvs_summary)
+        # Lists to store time and λ_hat values
+        times = []
+        lambda_hats = []
+        zs = []
+        cumulative_posteriors_summary = []
+        pdvs_summary = []
+
+        # MMAE simulator initialization
+        MMAESimulator = MMAESimulatorSyntheticData(λs, true_λ, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, true_system_noisy, False, max_time, max_steps, amplitude)
+
+        # Main simulation loop
+        for step_counter in range(0, max_steps):
+            λ_hat, cumulative_posteriors, pdvs = MMAESimulator.update(step_counter, dt)
+            times.append(step_counter * dt)
+            lambda_hats.append(λ_hat)
+            cumulative_posteriors_summary.append(cumulative_posteriors)
+            pdvs_summary.append(pdvs)
+
+        all_lambda_hats.append(lambda_hats)
+        all_measurements.append(zs)
+        times_storage = times
+
+        mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_posteriors_summary, pdvs_summary)
+
+    # plot_measurements_grid(times, all_measurements, Q_R_combinations)
+    # plot_λ_hat_grid(times_storage, all_lambda_hats, true_λ, Q_R_combinations)

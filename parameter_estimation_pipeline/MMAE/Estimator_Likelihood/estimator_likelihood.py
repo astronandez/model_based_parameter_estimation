@@ -8,11 +8,15 @@ from statsmodels.stats.diagnostic import acorr_ljungbox
 from .Estimator.estimator import Estimator
 from .PDV.pdv import PDV
 from System.system_simulator import SystemSimulator
+from .Spectral_Estimator.spectral_estimator import SpectralEstimator
 
 class EstimatorLikelihood:
     def __init__(self, λ, dt, H, Q, R, x0, noisy):
         # State estimator initialization
         self.Estimator = Estimator(λ, dt, H, Q, R, x0, noisy)
+
+        # Spectral estimator initialization
+        # self.SpectralEstimator = SpectralEstimator(50, 1)
 
         # Compute scalar likelihood initialization
         self.PDV = PDV()
@@ -20,6 +24,7 @@ class EstimatorLikelihood:
 
     def update(self, u: ndarray, z: ndarray, dt: float):
         _, _, r, A = self.Estimator.update(u, z, dt)
+        # r_k_gamma, A_k_gamma = self.SpectralEstimator.update(r)
         pdv = self.PDV.update(r, A)
 
         return pdv

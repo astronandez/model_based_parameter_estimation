@@ -19,6 +19,9 @@ class MMAE:
         # Joint probability simulator initialization
         self.JointProbability = JointProbability(λs)
 
+        # Track model performance over time
+        self.model_failures = np.zeros(len(λs))
+
 
     def update(self, u: ndarray, z: ndarray, dt: float) -> float:
         # Update each likelihood estimator
@@ -30,30 +33,48 @@ class MMAE:
         # Update joint probabilities and get weighted estimate
         λ_hat, cumulative_posteriors = self.JointProbability.update(pdvs, self.λs)
 
-        # self.manage_models(λ_hat, cumulative_posteriors)
+        self.manage_models(λ_hat, cumulative_posteriors)
 
         return λ_hat, cumulative_posteriors, pdvs
     
 
     def manage_models(self, λ_hat: np.ndarray, cumulative_posteriors: np.ndarray):
         """
-        Adjust parameters of low-posterior models to have closer to the estimated dynamics (λ_hat)
+        Adjust low-posterior models closer to estimated dynamics (λ_hat),
+        while keeping model diversity to ensure robust interpolation.
         """
-        threshold = 0.01   # Posterior threshold
-        alpha = 0.1        # Adjustment weight
+        threshold = 0.01  # Posterior probability threshold for poor performance
 
         for i, posterior in enumerate(cumulative_posteriors):
-            if posterior <= threshold:
-                # Smoothly adjust parameters toward λ_hat
-                old_lambda = self.λs[i].copy()  # Keep a copy for logging
+            if posterior < threshold:
+                self.model_failures[i] += 1  # Track model failures
+                
+                # If model consistently fails, replace it entirely
+                if self.model_failures[i] > 3:
+                    self.λs[i] = λ_hat #+ np.random.normal(0, 10.0, size=self.λs[i].shape)
+                    self.model_failures[i] = 0  # Reset failure count
+                    # print(f"Replacing Model {i} with new estimate {self.λs[i]}")
+                    self.JointProbability.ConditionalProbabilityUpdate.cumulative_posteriors[i] = 1.0 / len(self.λs)
+                    continue  # Skip further updates to avoid conflicting modifications
+
+                # Compute adaptive step size
+                error = np.linalg.norm(self.λs[i] - λ_hat)
+                alpha = min(0.05 + 0.1 * (error / np.linalg.norm(λ_hat)), 0.5)
+
+                # Move model towards λ_hat
+                old_lambda = self.λs[i].copy()
                 self.λs[i] = (1 - alpha) * self.λs[i] + alpha * λ_hat
-                
-                # Update the model's parameters
+
+                # Add small perturbations for exploration
+                # perturbation = np.random.uniform(-5.0, 5.0, size=self.λs[i].shape)
+                perturbation = np.random.normal(0, 1.0, size=self.λs[i].shape)
+                self.λs[i] += perturbation
+
+                # Update estimator parameters
                 self.EstimatorLikelihoods[i].Estimator.SystemSimulator.model.λ = self.λs[i]
-                
+
                 # print(f"Model {i} updated from {old_lambda} to {self.λs[i]} based on posterior {posterior}")
 
-                break
         
 
 ########### Testbench ###########
