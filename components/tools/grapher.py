@@ -133,13 +133,13 @@ def plotFitCurve(params, z_orig, t_orig, z_fit, t_fit, labels):
     
 if __name__ == "__main__":
     ############### Show Spring Detection Graph ###############
-    # display(f"./data/level0_dt_0_05.fig")
-    # display(f"./data/level1_dt_0_05.fig")
-    # display(f"./data/level2_dt_0_05.fig")
+    display(f"./data/level0_dt_0_05.fig")
+    display(f"./data/level1_dt_0_05.fig")
+    display(f"./data/level2_dt_0_05.fig")
     display("./data/m105_5_k80_80_x_measurements.fig")
     display("./data/m105_5_k80_80_y_measurements.fig")
-    # display("./data/spring_still_x_measurements.fig")
-    # display("./data/spring_still_y_measurements.fig")
+    display("./data/spring_still_x_measurements.fig")
+    display("./data/spring_still_y_measurements.fig")
     # display("./data/m105_5_k80_80_SYNTH_measurements.fig")
     plt.show()
     

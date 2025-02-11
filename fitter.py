@@ -17,28 +17,34 @@ def createSyntheticFunction(function, params, t_max, steps):
 
 if __name__ == "__main__":
     
-    def testbenchGuessParamFromSynthetic():
+    def testbenchGuessParamFromSynthetic(params, params_guess, tmax, steps):
+        m, k, b, amplitude, phi, offset= params
+        # m_g, k_g, b_g, amplitude_g, phi_g, offset_g = params_guess
         model_id = "m105_5_k80_80_SYNTH"
-        t, z, z_mu = createSyntheticFunction(dampedCosine, [0.1055, 80.80, 0.008, -0.005, -pi, 343], 100, 5000)
+        t, z, z_mu = createSyntheticFunction(dampedCosine, [m, k, b, amplitude, phi, offset], tmax, steps)
         labels = [f"./graphs/{model_id}_measurements.fig", 
                 f"Synthetic Function Generated",
                     "Time (s)", "Position (m)"]
         plotTimeSeries(t, z, labels)
-        
+
         bounds = (
             [0.01, 10.0, 0.0, -0.1, -pi, 0.0],
             [0.5, 100.0, 0.1, 0.1, pi, 640.0]  
         )
         
-        initial_guess = [0.1, 10.0, 0.01, -0.02, 0.0, 0.0]  # Initial guess for (m, k, b, amplitude, phi, offset)
+        # initial_guess = [m_g, k_g, b_g, amplitude_g, phi_g, offset_g]  # Initial guess for (m, k, b, amplitude, phi, offset)
 
         # Perform the curve fitting
-        params, covariance = curve_fit(dampedCosine, t, z, p0=initial_guess, bounds=bounds)
+        params, covariance = curve_fit(dampedCosine, t, z, p0=params_guess, bounds=bounds)
+        m_fit, k_fit, b_fit, amplitude_fit, phi_fit, offset_fit = params
         print("Estimated Fitment")
-        t_guess, z_guess, z_mu_guess = createSyntheticFunction(dampedCosine, params, 100, 10000)
+        t_guess, z_guess, z_mu_guess = createSyntheticFunction(dampedCosine, params, tmax, steps * 2)
         labels2 = [f"{model_id}_fitment.fig",
                    "Damped Coside Curve Fitment"]
         plotFitCurve(params, z, t, z_guess, t_guess, labels2)
+
+        print("Original Ratios k/m:", k/m, "b/m:", b/m)
+        print("Guessed Ratios k/m:", k_fit/m_fit, "b/m:", b_fit/m_fit)
         plt.show()
     
     def testbenchGuessParamFromReal(model_id):
@@ -59,6 +65,10 @@ if __name__ == "__main__":
                    "Damped Coside Curve Fitment"]
         plotFitCurve(params, cys, ts, z_guess, t_guess, labels2)
         plt.show()
-        
-    # testbenchGuessParamFromSynthetic()
-    testbenchGuessParamFromReal("m105_7_k80_80")
+
+    params = [0.1055, 80.80, 0.006, -0.005, -pi, 343]
+    params_guess = [0.1, 10.0, 0.01, -0.02, 0.0, 0.0]
+    tmax = 100
+    steps = 5000  
+    testbenchGuessParamFromSynthetic(params, params_guess, tmax, steps)
+    # testbenchGuessParamFromReal("m105_7_k80_80")
