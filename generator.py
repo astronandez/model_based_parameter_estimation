@@ -1,12 +1,13 @@
 import json
 import cv2 as cv
-from numpy import float32
+from seaborn import histplot
+from scipy.stats import norm
 
-from components.detector import Detector
-from components.camera import Camera
-from components.tools.common import *
-from components.tools.stopwatch import Stopwatch
-from components.tools.dataloader import Dataloader
+from computer_vision.detector import Detector
+from computer_vision.camera import Camera
+from computer_vision.tools.common import *
+from computer_vision.tools.stopwatch import Stopwatch
+from computer_vision.tools.dataloader import Dataloader
 
 def defaultMeasurementGeneration(camera_config, detector_config):
     generator = Generator(camera_config, detector_config)
@@ -77,11 +78,45 @@ class Generator(Camera):
         
     
 if __name__ == "__main__":
-    camera_config_path = './configuration_files/camera_configs/camera_generator.json'
-    detector_config_path = './configuration_files/detector_configs/detector_spring.json'
-    camera_config = loadConfig(camera_config_path)
-    detector_config = loadConfig(detector_config_path)
+    import sys
     
-    model_id = "m105_7_k82_3448"
-    ts, dts, cxs, cys = defaultMeasurementGeneration(camera_config, detector_config)
-    inspectData(model_id, ts, dts, cxs, cys)
+    camera_config = loadConfig('./configuration_files/camera_configs/camera_generator.json')
+    detector_config = loadConfig('./configuration_files/detector_configs/detector_base.json')
+    # ts, dts, cxs, cys = defaultMeasurementGeneration(camera_config, detector_config)
+
+    dataloader = Dataloader("./output/")
+    ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{camera_config['model_id']}.csv")
+    inspectData(camera_config['model_id'], ts, dts, cxs, cys)
+    sys.stdout = open(f"./output/{camera_config['model_id']}_metrics.txt", 'w')
+    mean_v = mean(cys)
+    var_v = var(cys)
+    stdd_v = std(cys)
+    
+    mean_w = mean(cxs)
+    var_w = var(cxs)
+    stdd_w = std(cxs)
+    
+    print(f"Model: {camera_config['model_id']}")
+    print("===== Measurement Noise Metrics =====")
+    print("Mean of y:", mean_v) 
+    print("Variance of y:", var_v)
+    print("Standard Deviation of y:", stdd_v)
+    print("======== System Noise Metrics =======")
+    print("Mean of x:", mean_w) 
+    print("Variance of x:", var_w)
+    print("Standard Deviation of x:", stdd_w, "\n")   
+    sys.stdout.close()
+    
+    label_cys = [f"./graphs/{camera_config['model_id']}_cys_distribution.fig",
+                    f'Probability Distribution {camera_config['model_id']} y-axis center (Mean = 0)',
+                    "Position (px)",
+                    "Probability Density"]
+    
+    label_cxs = [f"./graphs/{camera_config['model_id']}_cxs_distribution.fig",
+                f'Probability Distribution {camera_config['model_id']} x-axis center (Mean = 0)',
+                "Position (px)",
+                "Probability Density"]
+    
+    plotDistribution(cys, label_cys)
+    plotDistribution(cxs, label_cxs)
+    plt.show()

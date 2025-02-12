@@ -4,8 +4,8 @@ from numpy.random import seed
 from parameter_estimation_pipeline.System.system_simulator import SystemSimulator
 from parameter_estimation_pipeline.System.Model.system import System
 from parameter_estimation_pipeline.MMAE.mmae import MMAE
-from components.tools.common import *
-from components.tools.grapher import plotValidateSyntheticSystems         
+from computer_vision.tools.common import *
+from computer_vision.tools.grapher import plotValidateSyntheticSystems         
                 
 def loop(simulators: list[SystemSimulator], t, u, dt, mmaes: list[MMAE] = []):
     sim_xs = []

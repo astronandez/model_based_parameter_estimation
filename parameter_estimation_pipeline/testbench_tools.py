@@ -38,6 +38,16 @@ def simulation_configuration_setup(config_path):
     dt = config["dt"]
     H = np.array(config["H"])
     
+    # true false values for determining if we want to test varrying noise values
+    test_Q_mmae = config["test_Q_mmae"]
+    test_R_mmae = config["test_R_mmae"]
+
+    # test values for the noise values
+    test_Q_mmae_values = np.array(config["test_Q_mmae_values"])
+    test_Q_mmae_values = [np.eye(H.shape[1]) * Q_val for Q_val in test_Q_mmae_values]
+    test_R_mmae_values = np.array(config["test_R_mmae_values"])
+    test_R_mmae_values = [np.eye(H.shape[0]) * R_val for R_val in test_R_mmae_values]
+
     # Q and R for the MMAE estimator
     Q_mmae = np.eye(H.shape[1]) * config["Q_mmae"]
     R_mmae = np.eye(H.shape[0]) * config["R_mmae"]
@@ -53,7 +63,7 @@ def simulation_configuration_setup(config_path):
     random_seed = config['random_seed']
     true_system_noisy = config['true_system_noisy']
 
-    return λs, m, k, b, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy
+    return λs, m, k, b, dt, H, test_Q_mmae, test_R_mmae, test_Q_mmae_values, test_R_mmae_values, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy
 
 def return_csv(times, data, title):
     df = pd.DataFrame(data)
@@ -128,6 +138,91 @@ def plot_λ_hat(times, lambda_hats, true_λ):
     plt.title('Parameter Estimates (m, k, b) vs Time')
     fig.tight_layout()  # To avoid overlap of labels
     plt.grid(True)
+    plt.show()
+
+def plot_λ_hat_grid(times, all_lambda_hats, true_λ, Q_R_combinations):
+    """
+    Plots estimated parameters (m, k, b) over time for different Q-R combinations in a 2x3 grid.
+    
+    Each plot will have three different y-axes for mass, spring constant, and damping coefficient.
+    
+    Parameters:
+    - times: Common time array for all simulations
+    - all_lambda_hats: List of lambda_hats arrays for each simulation
+    - true_λ: True system parameters [m, k, b]
+    - Q_R_combinations: List of (Q, R) tuples to use as labels
+    """
+    fig, axes = plt.subplots(2, 3, figsize=(20, 12))  # Create a 2x3 grid of subplots
+    axes = axes.flatten()  # Flatten to 1D array for easy iteration
+
+    for i, lambda_hats in enumerate(all_lambda_hats):
+        ax1 = axes[i]  # Select subplot from grid
+        lambda_hats = np.array(lambda_hats)
+
+        # Plot estimated mass (m) on the primary y-axis
+        ax1.set_xlabel('Time (s)')
+        ax1.set_ylabel('Mass (m)', color='blue')
+        ax1.plot(times, lambda_hats[:, 0], label='Estimated mass (m)', color='blue', linestyle='-')
+        ax1.axhline(y=true_λ[0], color='blue', linestyle='--', label='True mass (m)')
+        ax1.tick_params(axis='y', labelcolor='blue')
+
+        # Create a secondary y-axis for spring constant (k)
+        ax2 = ax1.twinx()
+        ax2.set_ylabel('Spring constant (k)', color='green')
+        ax2.plot(times, lambda_hats[:, 1], label='Estimated spring constant (k)', color='green', linestyle='-')
+        ax2.axhline(y=true_λ[1], color='green', linestyle='--', label='True spring constant (k)')
+        ax2.tick_params(axis='y', labelcolor='green')
+
+        # Create another secondary y-axis for damping coefficient (b) (offset from the right)
+        ax3 = ax1.twinx()
+        ax3.spines['right'].set_position(('outward', 60))  # Offset third axis to the right
+        ax3.set_ylabel('Damping coefficient (b)', color='red')
+        ax3.plot(times, lambda_hats[:, 2], label='Estimated damping coefficient (b)', color='red', linestyle='-')
+        ax3.axhline(y=true_λ[2], color='red', linestyle='--', label='True damping coefficient (b)')
+        ax3.tick_params(axis='y', labelcolor='red')
+
+        # Title for each subplot
+        ax1.set_title(f"Q={Q_R_combinations[i][0]}, R={Q_R_combinations[i][1]}")
+
+        # Legends for each axis
+        ax1.legend(loc='upper left', fontsize=8)
+        ax2.legend(loc='upper right', fontsize=8)
+        ax3.legend(loc='lower right', fontsize=8)
+
+        ax1.grid(True)
+
+    plt.tight_layout()  # Adjust layout to prevent overlap
+    plt.show()
+
+def plot_measurements_grid(times, all_measurements, Q_R_combinations):
+    """
+    Plots measurement data over time in a 2x3 grid.
+
+    Parameters:
+    - times: Common time array for all simulations
+    - all_measurements: List of measurements (zs) for each Q-R combination
+    - Q_R_combinations: List of (Q, R) tuples for subplot titles
+    """
+    fig, axes = plt.subplots(2, 3, figsize=(20, 12))  # Create 2x3 grid
+    axes = axes.flatten()  # Flatten axes array for easy iteration
+
+    for i, measurements in enumerate(all_measurements):
+        ax = axes[i]  # Select subplot
+
+        measurements = np.array(measurements)  # Convert to numpy array if not already
+
+        # Plot each measurement signal
+        for j in range(measurements.shape[1]):  
+            ax.plot(times, measurements[:, j], label=f"Measurement {j+1}")
+
+        # Title and labels
+        ax.set_title(f"Q={Q_R_combinations[i][0]}, R={Q_R_combinations[i][1]}")
+        ax.set_xlabel("Time (s)")
+        ax.set_ylabel("Measurement Values")
+        ax.grid(True)
+        ax.legend(title="Measurements", fontsize=8)
+
+    plt.tight_layout()  # Adjust layout to prevent overlap
     plt.show()
 
 def plot_heatmap(models_summary, times, λs, title):

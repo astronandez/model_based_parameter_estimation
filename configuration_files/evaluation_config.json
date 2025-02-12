@@ -1,14 +1,15 @@
 {
+    "model_id": "m95_0_k80_80",
     "dt": 0.05,
-    "H": [[1, 0]],
-    "x0": [[0], [0]],
+    "H": [[2000, 0]],
+    "x0": [[0.008121], [0]],
     
-    "true_m": 0.1055,
+    "true_m": 0.095,
     "true_k": 80.80,
-    "true_b": 1,
+    "true_b": 0.00114,
 
-    "true_Q": 0.05,
-    "true_R": 0.0042632567,
+    "true_Q": 2.51296813747832,
+    "true_R": 0.0016576910979181475,
 
     "Q_variants_start": 0.0,
     "Q_variants_end": 0.0,
@@ -20,13 +21,13 @@
 
     "m_variants_start": 0.05,
     "m_variants_end": 0.3,
-    "m_variants_step": 0.05,
+    "m_variants_step": 0.1,
 
-    "k_variants_start": 65.0,
+    "k_variants_start": 50.0,
     "k_variants_end": 100.0,
-    "k_variants_step": 10.0,
+    "k_variants_step": 25.0,
 
-    "b_variants_start": 0.5,
-    "b_variants_end": 2,
-    "b_variants_step": 0.5
+    "b_variants_start": 0.0005,
+    "b_variants_end": 0.002,
+    "b_variants_step": 0.0001
 }

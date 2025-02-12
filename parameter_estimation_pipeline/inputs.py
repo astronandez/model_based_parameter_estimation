@@ -31,3 +31,16 @@ class Input:
         u = zeros((steps, self.s.B.shape[1]))
         u[change:] = amplitude
         return u
+
+    def impulse_function(self, steps, amplitude, impulse_time=100):
+        """
+        Generate an impulse function input signal.
+        
+        :param steps: The total number of time steps.
+        :param amplitude: The amplitude of the impulse (default is 1 for standard impulse).
+        :param impulse_time: The time step at which the impulse occurs.
+        :return: A numpy array representing the impulse function input signal.
+        """
+        u = zeros((steps, self.s.B.shape[1]))
+        u[impulse_time] = amplitude
+        return u

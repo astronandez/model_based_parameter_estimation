@@ -6,7 +6,7 @@ from ...System.system_simulator import SystemSimulator
 from ..Estimator_Likelihood.estimator_likelihood import EstimatorLikelihood
 
 class ConditionalProbabilityUpdate:
-    def __init__(self, λs, lower_bound=0.001, upper_bound=0.999):
+    def __init__(self, λs, lower_bound=0.01, upper_bound=0.99):
         # Estimator likelihood simulators initialization
         self.λs = λs
 

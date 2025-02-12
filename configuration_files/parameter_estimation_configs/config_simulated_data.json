@@ -2,29 +2,35 @@
     "max_time": 100,
     "dt": 0.1,
     "H": [[1, 0]],
+
+    "test_R_mmae": false,
+    "test_Q_mmae": false,
+
+    "test_Q_mmae_values": [1.0e-11, 1.0e-7, 1.0e-5, 1.0e-3, 1.0e-1, 1.0e+0],
+    "test_R_mmae_values": [1.0e-11, 1.0e-7, 1.0e-5, 1.0e-3, 1.0e-1, 1.0e+0],
     
-    "Q_mmae": 1e-15,
-    "R_mmae": 1e-15,
+    "Q_mmae": 1.0e-11,
+    "R_mmae": 1.0e-11,
     
-    "Q_true_system": 1e-15,
-    "R_true_system": 1e-15,
+    "Q_true_system": 1.0e-11,
+    "R_true_system": 1.0e-11,
     
-    "amplitude": 5000,
+    "amplitude": 50000,
     "initial_state": [[0], [0]],
     "measurements_output": "output/measurements.txt",
     "input_signal_output": "output/input_signal.txt",
 
-    "true_m": 2500.0,
+    "true_m": 2550.0,
     "m_variants_start": 2400.0,
     "m_variants_end": 2600.0,
     "m_variants_step": 100.0,
 
-    "true_k": 16000.0,
+    "true_k": 16500.0,
     "k_variants_start": 15000.0,
     "k_variants_end": 17000.0,
     "k_variants_step": 1000.0,
 
-    "true_b": 1800.0,
+    "true_b": 1850.0,
     "b_variants_start": 1700.0,
     "b_variants_end": 1900.0,
     "b_variants_step": 100.0,
