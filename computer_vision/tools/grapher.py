@@ -12,7 +12,7 @@ def display(path):
     with open(path, "rb") as file:
         fig = pickle.load(file)
 
-def plotTimeSeries(t_data, z_data, labels):
+def plotTimeSeries(t_data, z_data, labels, store=True):
     file_name, title, xlabel, ylabel = labels
     
     plt.figure(figsize=(10, 5))
@@ -22,10 +22,11 @@ def plotTimeSeries(t_data, z_data, labels):
     plt.ylabel(ylabel)
     plt.legend()
     plt.grid()
-    with open(file_name, "wb") as file:
-        pickle.dump(plt.gcf(), file)
+    if store:
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)
         
-def plotValidateSyntheticSystems(model:list, sim_zs, t, u, resolution, labels):
+def plotValidateSyntheticSystems(model:list, sim_zs, t, u, resolution, labels, store=True):
     file_name, title, xlabel, ylabel1, ylabel2 = labels
     fig, ax1 = plt.subplots(figsize=(10, 5))
     plt.title(title)
@@ -46,11 +47,11 @@ def plotValidateSyntheticSystems(model:list, sim_zs, t, u, resolution, labels):
     # Adjust plot size to make space for the legend
     plt.subplots_adjust(right=0.75)# Make space for the legen
     plt.grid(True)
-    
-    with open(f"{file_name}", "wb") as file:
-        pickle.dump(plt.gcf(), file)
+    if store:
+        with open(f"{file_name}", "wb") as file:
+            pickle.dump(plt.gcf(), file)
         
-def plotLambdaHat(t, lambda_hats, true_lambda, labels):
+def plotLambdaHat(t, lambda_hats, true_lambda, labels, store=True):
         # Convert the list of lambda_hats (which are vectors) to a numpy array for easy indexing
         file_name, title = labels
         fig, ax1 = plt.subplots(figsize=(10, 5))
@@ -85,10 +86,12 @@ def plotLambdaHat(t, lambda_hats, true_lambda, labels):
         plt.title(title)
         fig.tight_layout()  # To avoid overlap of labels
         plt.grid(True)
-        with open(file_name, "wb") as file:
-            pickle.dump(plt.gcf(), file)
+        
+        if store:
+            with open(file_name, "wb") as file:
+                pickle.dump(plt.gcf(), file)
 
-def plotSpringConstant(file_name, x, f):
+def plotSpringConstant(file_name, x, f, store=True):
     plt.figure(figsize=(10, 5))
     plt.scatter(x, f, label="force")
     slope, intercept = polyfit(x, f, 1)
@@ -99,11 +102,11 @@ def plotSpringConstant(file_name, x, f):
     plt.legend()
     plt.title("Force vs Displacement")
     plt.grid(True)
+    if store:
+        with open(f"{file_name}", "wb") as file:
+            pickle.dump(plt.gcf(), file)
 
-    with open(f"{file_name}", "wb") as file:
-        pickle.dump(plt.gcf(), file)
-
-def plotHeatmap(models_summary, ts, λs, labels):
+def plotHeatmap(models_summary, ts, λs, labels, store=True):
     file_name, title = labels
     λs = [f"m: {round(λ[0], 2)}, k: {round(λ[1], 2)}, b: {round(λ[2], 2)}" for λ in λs]
     plt.figure(figsize=(10, 6))
@@ -114,11 +117,11 @@ def plotHeatmap(models_summary, ts, λs, labels):
     plt.xlabel('Time (s)')
     plt.ylabel('Model Variants (λs)')
     plt.title(title)
-
-    with open(file_name, "wb") as file:
-        pickle.dump(plt.gcf(), file)
+    if store:
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)
         
-def plotFitCurve(params, z_orig, t_orig, z_fit, t_fit, labels):
+def plotFitCurve(params, z_orig, t_orig, z_fit, t_fit, labels, store=True):
     file_name, title = labels
     m, k, b, amplitude, phi, offset = params
     plt.figure(figsize=(10, 6))
@@ -129,11 +132,11 @@ def plotFitCurve(params, z_orig, t_orig, z_fit, t_fit, labels):
     plt.legend()
     plt.title(title)
     plt.grid(True)
-    
-    with open(file_name, "wb") as file:
-        pickle.dump(plt.gcf(), file)
+    if store:
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)
 
-def plotDistribution(data, labels):
+def plotDistribution(data, labels, store=True):
     file_name, title, xlabel, ylabel = labels
     data_mean_zero = data - mean(data)
     mu, sigma = norm.fit(data_mean_zero)
@@ -156,9 +159,9 @@ def plotDistribution(data, labels):
     plt.title(title)
     plt.legend()
     plt.grid(True)
-    
-    with open(file_name, "wb") as file:
-        pickle.dump(plt.gcf(), file)
+    if store:    
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)
     
 if __name__ == "__main__":
     ############### Show Spring Detection Graph ###############

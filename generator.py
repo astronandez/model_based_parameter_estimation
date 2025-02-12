@@ -8,14 +8,6 @@ from computer_vision.camera import Camera
 from computer_vision.tools.common import *
 from computer_vision.tools.stopwatch import Stopwatch
 from computer_vision.tools.dataloader import Dataloader
-
-def defaultMeasurementGeneration(camera_config, detector_config):
-    generator = Generator(camera_config, detector_config)
-    generator.initRecording()
-    generator.startRecording()
-    ts, dts, cxs, cys = generator.storeData()
-            
-    return ts, dts, cxs, cys
     
 class Generator(Camera):
     detector: Detector
@@ -65,6 +57,8 @@ class Generator(Camera):
         dts = []
         cxs = []
         cys = []
+        widths = []
+        heights = []
 
         for track_id in self.data:
             for row in self.data[track_id]:
@@ -73,21 +67,31 @@ class Generator(Camera):
                 dts.append(dt)
                 cxs.append(cx)
                 cys.append(cy)
+                widths.append(width)
+                heights.append(height)
                 
-        return ts, dts, cxs, cys
+        return ts, dts, cxs, cys, widths, heights
         
-    
+def defaultMeasurementGeneration(camera_config, detector_config):
+    generator = Generator(camera_config, detector_config)
+    generator.initRecording()
+    generator.startRecording()
+    ts, dts, cxs, cys, widths, heights = generator.storeData()
+            
+    return ts, dts, cxs, cys, widths, heights
+
+   
 if __name__ == "__main__":
     import sys
-    
+    model_id = "m95_0_k80_80"
     camera_config = loadConfig('./configuration_files/camera_configs/camera_generator.json')
     detector_config = loadConfig('./configuration_files/detector_configs/detector_base.json')
-    # ts, dts, cxs, cys = defaultMeasurementGeneration(camera_config, detector_config)
+    # ts, dts, cxs, cys, widths, heights = defaultMeasurementGeneration(camera_config, detector_config)
 
     dataloader = Dataloader("./output/")
-    ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{camera_config['model_id']}.csv")
-    inspectData(camera_config['model_id'], ts, dts, cxs, cys)
-    sys.stdout = open(f"./output/{camera_config['model_id']}_metrics.txt", 'w')
+    ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{model_id}.csv")
+    inspectData(camera_config['model_id'], ts, dts, cxs, cys, widths, heights)
+    sys.stdout = open(f"./output/{model_id}_metrics.txt", 'w')
     mean_v = mean(cys)
     var_v = var(cys)
     stdd_v = std(cys)
@@ -96,7 +100,7 @@ if __name__ == "__main__":
     var_w = var(cxs)
     stdd_w = std(cxs)
     
-    print(f"Model: {camera_config['model_id']}")
+    print(f"Model: {model_id}")
     print("===== Measurement Noise Metrics =====")
     print("Mean of y:", mean_v) 
     print("Variance of y:", var_v)
@@ -107,13 +111,13 @@ if __name__ == "__main__":
     print("Standard Deviation of x:", stdd_w, "\n")   
     sys.stdout.close()
     
-    label_cys = [f"./graphs/{camera_config['model_id']}_cys_distribution.fig",
-                    f'Probability Distribution {camera_config['model_id']} y-axis center (Mean = 0)',
+    label_cys = [f"./graphs/{model_id}_cys_distribution.fig",
+                    f'Probability Distribution {model_id} y-axis center (Mean = 0)',
                     "Position (px)",
                     "Probability Density"]
     
-    label_cxs = [f"./graphs/{camera_config['model_id']}_cxs_distribution.fig",
-                f'Probability Distribution {camera_config['model_id']} x-axis center (Mean = 0)',
+    label_cxs = [f"./graphs/{model_id}_cxs_distribution.fig",
+                f'Probability Distribution {model_id} x-axis center (Mean = 0)',
                 "Position (px)",
                 "Probability Density"]
     

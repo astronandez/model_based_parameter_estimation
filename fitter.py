@@ -8,12 +8,28 @@ def dampedCosine(t, m, k, b, amplitude, phi, offset):
     return abs(amplitude) * exp(-alpha * t) * cos(omega * t + phi) + offset
 
 def createSyntheticFunction(function, params, t_max, steps):
-    m, k, b, amplitude, phi, offset = params
-    print(f"m: {m} kg,  k: {k} N/m, b: {b} N/s, Amplitude: {amplitude} m, Phi: {phi}, offset: {offset}")
     t = linspace(0.0, t_max, steps)
     z = function(t, *params)
     z_mu = mean(z)
     return t, z, z_mu
+
+def fitToRealData(model_id, params, params_guess, ts, cys, store=True):
+    m, k, b, amplitude, phi, offset= params
+    print(f"Real Damped Cosine Values")
+    print(f"m: {m} kg,  k: {k} N/m, b: {b} N/s, Amplitude: {amplitude} m, Phi: {phi}, offset: {offset}")
+    
+    params_fit, covariance = curve_fit(dampedCosine, ts, cys, p0=params_guess, maxfev=500000)
+    m_fit, k_fit, b_fit, amplitude_fit, phi_fit, offset_fit = params_fit
+    print(f"Estimated Damped Cosine Values")
+    print(f"m: {m_fit} kg,  k: {k_fit} N/m, b: {b_fit} N/s, Amplitude: {amplitude_fit} m, Phi: {phi_fit}, offset: {offset_fit}")
+    t_guess, z_guess, z_mu_guess = createSyntheticFunction(dampedCosine, params_fit, ts[-1], len(ts) * 2)
+    
+    labels2 = [f"./graphs/{model_id}_fitment_{time.strftime('%Y%m%d_%H%M%S')}.fig",
+                "Damped Coside Curve Fitment"]
+    plotFitCurve(params, cys, ts, z_guess, t_guess, labels2, store=store)
+    print("Original Ratios k/m:", k/m, "b/m:", b/m)
+    print("Fitment Ratios k/m:", k_fit/m_fit, "b/m:", b_fit/m_fit)
+    plt.show()
 
 if __name__ == "__main__":
     

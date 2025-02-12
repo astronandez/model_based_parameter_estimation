@@ -1,8 +1,7 @@
 {
     "frame_w": 640,
     "frame_h": 480,
-    "input": "./videos/m95_k80_80.mp4",
+    "input": "./videos/m095_0_k80_80..mp4",
     "output_path": "./videos/",
-    "model_id": "m95_k80_80",
     "write": true
 }

@@ -53,18 +53,56 @@ def defaultSetup(config):
 
     return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0
 
-def inspectData(exp_name, ts, dts, cxs, cys):
-    labels1 = [f"./graphs/{exp_name}_y_measurements.fig",
+############# Data Utilities ###################
+def defaultMetrics(data):
+    data_mean = mean(data)
+    data_var = var(data)
+    data_std = std(data)
+    return data_mean, data_var, data_std
+    
+def inspectData(model_id, ts, cxs, cys, widths, heights, store=True):
+    labels1 = [f"./graphs/{model_id}_y_measurements.fig",
                 f"Detector Measurements, position in frame (y-axis)",
                 "Time (s)",
                 "Position (px)"]
-    labels2 = [f"./graphs/{exp_name}_x_measurements.fig",
+    labels2 = [f"./graphs/{model_id}_x_measurements.fig",
                 f"Detector Measurements, position in frame (x-axis)",
                 "Time (s)",
                 "Position (px)"]
-    plotTimeSeries(ts, cys, labels1)
-    plotTimeSeries(ts, cxs, labels2)
-    plt.show()
+    labels3 = [f"./graphs/{model_id}_width_measurements.fig",
+                f"Detector Measurements, width of object over time",
+                "Time (s)",
+                "Magnitude (px)"]
+    labels4 = [f"./graphs/{model_id}_height_measurements.fig",
+                f"Detector Measurements, height of object over time",
+                "Time (s)",
+                "Magnitude (px)"]
+    
+    label_cys = [f"./graphs/{model_id}_cys_distribution.fig",
+                f'Probability Distribution {model_id} y-axis center (Mean = 0)',
+                "Position (px)",
+                "Probability Density"]
+    label_cxs = [f"./graphs/{model_id}_cxs_distribution.fig",
+                f'Probability Distribution {model_id} x-axis center (Mean = 0)',
+                "Position (px)",
+                "Probability Density"]
+    label_height = [f"./graphs/{model_id}_height_distribution.fig",
+                f'Probability Distribution {model_id} object height (Mean = 0)',
+                "Magnitude (px)",
+                "Probability Density"]
+    label_width = [f"./graphs/{model_id}_width_distribution.fig",
+                f'Probability Distribution {model_id} object width (Mean = 0)',
+                "Magnitude (px)",
+                "Probability Density"]
+    
+    plotTimeSeries(ts, cys, labels1, store)
+    plotTimeSeries(ts, cxs, labels2, store)
+    plotTimeSeries(ts, widths, labels3, store)
+    plotTimeSeries(ts, heights, labels4, store)
+    plotDistribution(cys, label_cys, store)
+    plotDistribution(cxs, label_cxs, store)
+    plotDistribution(widths, label_width, store)
+    plotDistribution(heights, label_height, store)
 
 ############## Input Utilities #################
 def impulse(steps, step_impulse, amplitude, dt):

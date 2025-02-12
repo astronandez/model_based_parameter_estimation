@@ -3,6 +3,5 @@
     "frame_h": 640,
     "input": 1,
     "output_path": "./videos/",
-    "model_id": "name",
     "write": false
 }

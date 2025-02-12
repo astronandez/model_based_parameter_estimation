@@ -1,6 +1,6 @@
 {
     "frame_w": 640,
     "frame_h": 480,
-    "detector": "./components/cv_models/sticky_spring_detector.pt",
+    "detector": "./computer_vision/cv_models/sticky_spring_detector.pt",
     "output": "./output/"
 }

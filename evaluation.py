@@ -35,9 +35,23 @@ class Evaluation:
             
         return array(run_λ_hat), array(run_post), array(run_pdvs)
 
-if __name__ == "__main__":
+def defaultEvaluation(evaluation: Evaluation, ts, dts, cys, store=True):
+    # Labels necessary for graph file path, and title
+    label_lambda = [f"./graphs/{evaluation_config['model_id']}_estimations.fig",
+                    f'{evaluation_config['model_id']}: Parameter Estimates (m, k, b) vs Time']
+    label_likely = [f"./graphs/{evaluation_config['model_id']}_likelyhoods.fig",
+                    f'{evaluation_config['model_id']}: Heatmap of Model Likelihood Over Time']
+    label_poster = [f"./graphs/{evaluation_config['model_id']}_posteriors.fig",
+                    f'{evaluation_config['model_id']}: Heatmap of Cumulative Posterior Probabilities Over Time']
     
-    def defaultEvaluation(evaluation_config):
+    run_λ_hat, run_post, run_pdvs = evaluation.run(dts, (cys - mean(cys)))
+    
+    plotLambdaHat(ts, run_λ_hat, [evaluation_config["true_m"], evaluation_config["true_k"],evaluation_config["true_b"]], label_lambda, store=store)
+    plotHeatmap(run_pdvs, ts, evaluation.model_variants, label_likely, store=store)
+    plotHeatmap(run_post, ts, evaluation.model_variants, label_poster, store=store)
+
+if __name__ == "__main__":
+    def testbenchEvaluation(evaluation_config):
         dataloader = Dataloader("./output/")
         ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{evaluation_config['model_id']}.csv")
 
@@ -111,5 +125,5 @@ if __name__ == "__main__":
     # camera_config = loadConfig(camera_config_path)
     # detector_config = loadConfig(detector_config_path)
     
-    defaultEvaluation(evaluation_config)
+    testbenchEvaluation(evaluation_config)
     # default2DEvaluation(camera_config, detector_config, evaluation_config)
