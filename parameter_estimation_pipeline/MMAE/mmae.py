@@ -53,7 +53,7 @@ class MMAE:
                 if self.model_failures[i] > 3:
                     self.λs[i] = λ_hat #+ np.random.normal(0, 10.0, size=self.λs[i].shape)
                     self.model_failures[i] = 0  # Reset failure count
-                    print(f"Replacing Model {i} with new estimate {self.λs[i]}")
+                    # print(f"Replacing Model {i} with new estimate {self.λs[i]}")
                     self.JointProbability.ConditionalProbabilityUpdate.cumulative_posteriors[i] = 1.0 / len(self.λs)
                     continue  # Skip further updates to avoid conflicting modifications
 

@@ -15,11 +15,10 @@ class ComputeScalarLikelihood:
         """
         # Calculate the inverse of A_k
         inv_A = np.linalg.inv(A)
-
         #Likelihood calculation
         q = r.T @ inv_A @ r
-        
-        return q.item()
+        # print(q)
+        return np.trace(q)
     
 
 ########### Testbench ###########

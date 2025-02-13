@@ -123,7 +123,7 @@ def plotHeatmap(models_summary, ts, λs, labels, store=True):
         
 def plotFitCurve(params, z_orig, t_orig, z_fit, t_fit, labels, store=True):
     file_name, title = labels
-    m, k, b, amplitude, phi, offset = params
+    # m, k, b, amplitude, phi, offset = params
     plt.figure(figsize=(10, 6))
     plt.scatter(t_orig, z_orig, label='Original Cirve', s=10)
     plt.plot(t_fit, z_fit, label='Fitted Curve', color='red')
@@ -164,22 +164,27 @@ def plotDistribution(data, labels, store=True):
             pickle.dump(plt.gcf(), file)
     
 if __name__ == "__main__":
-    ############### Show Spring Detection Graph ###############
+    def loadModelGraphs(model_id):
+        display(f"./graphs/{model_id}_x_measurements.fig")
+        display(f"./graphs/{model_id}_y_measurements.fig")
+        display(f"./graphs/{model_id}_width_measurements.fig")
+        display(f"./graphs/{model_id}_height_measurements.fig")
+        display(f"./graphs/{model_id}_cxs_distribution.fig")
+        display(f"./graphs/{model_id}_cys_distribution.fig")
+        display(f"./graphs/{model_id}_width_distribution.fig")
+        display(f"./graphs/{model_id}_height_distribution.fig")
+        display(f"./graphs/{model_id}_likelyhoods.fig")
+        display(f"./graphs/{model_id}_posteriors.fig")
+        display(f"./graphs/{model_id}_estimations.fig")
+    
+    ############### Show Validation Graph ###############
     # display(f"./data/level0.fig")
     # display(f"./data/level1.fig")
     # display(f"./data/level2.fig")
-    # display("./data/m105_5_k80_80_x_measurements.fig")
-    # display("./data/m105_5_k80_80_y_measurements.fig")
-    # display("./data/spring_still_x_measurements.fig")
-    # display("./data/spring_still_y_measurements.fig")
-    # display("./data/m105_5_k80_80_SYNTH_measurements.fig")
-    display("./graphs/m95_0_k80_80_x_measurements.fig")
-    display("./graphs/m95_0_k80_80_y_measurements.fig")
-    # display("./graphs/noise_test_x_measurements.fig")
-    # display("./graphs/noise_test_y_measurements.fig")
-    # display("./graphs/noise_test_cxs_distribution.fig")
-    # display("./graphs/noise_test_cys_distribution.fig")
-    # display("./graphs/m95_0_k80_80_fitment_20250210_230540.fig")
+    
+    ############### Show Spring Detection Graph ###############
+    loadModelGraphs("m095_0_k80_80")
+    loadModelGraphs("m095_0_k80_80_2D")
     plt.show()
     
     ############### Show Spring Constant Graphs ###############
@@ -198,16 +203,4 @@ if __name__ == "__main__":
     # display("./data/spring_constant_tests/spring1_force.fig")
     # display("./data/spring_constant_tests/spring2_force.fig")
     # display("./data/spring_constant_tests/spring3_force.fig")
-    # plt.show()
-    
-    ################# Graph Validation Plot ################
-    # display(f"./graphs/level0_validate_dt_0_5.fig")
-    # display(f"./graphs/level1_validate_dt_0_5.fig")
-    # display(f"./graphs/level2_validate_dt_0_5.fig")
-    # display(f"./graphs/level0_validate_QR_UP_dt_0_1b.fig")
-    # display(f"./graphs/level1_validate_QR_UP_dt_0_1b.fig")
-    # display(f"./graphs/level2_validate_QR_UP_dt_0_1b.fig")
-    # display(f"./graphs/level0_validate_QR_UP_dt_0_01b.fig")
-    # display(f"./graphs/level1_validate_QR_UP_dt_0_01b.fig")
-    # display(f"./graphs/level2_validate_QR_UP_dt_0_01b.fig")
     # plt.show()

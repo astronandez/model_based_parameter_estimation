@@ -1,5 +1,5 @@
 import sys
-from numpy import array, mean, ndarray, empty
+from numpy import array, mean, ndarray, empty, diag, zeros_like
 from parameter_estimation_pipeline.MMAE.mmae import MMAE
 from generator import defaultMeasurementGeneration
 from computer_vision.tools.common import *
@@ -13,29 +13,42 @@ class Evaluation:
         self.mmae = MMAE(λs, dt, H, Q, R, x0, False)
         self.model_variants = λs
     
-    def update(self, dt, z):
-        # u = array([[0.0], [0.0]])
-        u = array([[0.0]])
-        z = array([[z]])
+    def update(self, dt, u, z):
         λ_hat, cumulative_posteriors, pdvs = self.mmae.update(u, z, dt)
         print(λ_hat)
         return λ_hat, cumulative_posteriors, pdvs
     
-    def run(self, dts, zs):
+    def run(self, dts, us, zs):
         run_post = []
         run_λ_hat = []
         run_pdvs = []
 
-        for dt, z in zip(dts, zs):
+        for dt, u, z in zip(dts, us, zs):
             # print(z)
-            λ_hat, cumulative_posteriors, pdvs = self.update(dt, z)
+            λ_hat, cumulative_posteriors, pdvs = self.update(dt, u, z)
             run_post.append(cumulative_posteriors)
             run_λ_hat.append(λ_hat)
             run_pdvs.append(pdvs)
             
         return array(run_λ_hat), array(run_post), array(run_pdvs)
 
-def defaultEvaluation(evaluation: Evaluation, ts, dts, cys, store=True):
+def defaultEvaluation(evaluation: Evaluation, evaluation_config, ts, dts, cys, store=True):
+    # Labels necessary for graph file path, and title
+    label_lambda = [f"./graphs/{evaluation_config['model_id']}_estimations.fig",
+                    f'{evaluation_config['model_id']}: Parameter Estimates (m, k, b) vs Time']
+    label_likely = [f"./graphs/{evaluation_config['model_id']}_likelyhoods.fig",
+                    f'{evaluation_config['model_id']}: Heatmap of Model Likelihood Over Time']
+    label_poster = [f"./graphs/{evaluation_config['model_id']}_posteriors.fig",
+                    f'{evaluation_config['model_id']}: Heatmap of Cumulative Posterior Probabilities Over Time']
+    zs = [[[a]] for a in (cys - mean(cys))]
+    us = zeros_like(zs)
+    run_λ_hat, run_post, run_pdvs = evaluation.run(dts, us, zs)
+    
+    plotLambdaHat(ts, run_λ_hat, [evaluation_config["true_m"], evaluation_config["true_k"],evaluation_config["true_b"]], label_lambda, store=store)
+    plotHeatmap(run_pdvs, ts, evaluation.model_variants, label_likely, store=store)
+    plotHeatmap(run_post, ts, evaluation.model_variants, label_poster, store=store)
+    
+def default2DEvaluation(evaluation: Evaluation, evaluation_config, ts, dts, cxs, cys, store=True):
     # Labels necessary for graph file path, and title
     label_lambda = [f"./graphs/{evaluation_config['model_id']}_estimations.fig",
                     f'{evaluation_config['model_id']}: Parameter Estimates (m, k, b) vs Time']
@@ -44,7 +57,9 @@ def defaultEvaluation(evaluation: Evaluation, ts, dts, cys, store=True):
     label_poster = [f"./graphs/{evaluation_config['model_id']}_posteriors.fig",
                     f'{evaluation_config['model_id']}: Heatmap of Cumulative Posterior Probabilities Over Time']
     
-    run_λ_hat, run_post, run_pdvs = evaluation.run(dts, (cys - mean(cys)))
+    zs = [[[a], [b]] for a, b in zip((mean(cxs) - cxs), (mean(cys) - cys))]
+    us = zeros_like(zs)
+    run_λ_hat, run_post, run_pdvs = evaluation.run(dts, us, zs)
     
     plotLambdaHat(ts, run_λ_hat, [evaluation_config["true_m"], evaluation_config["true_k"],evaluation_config["true_b"]], label_lambda, store=store)
     plotHeatmap(run_pdvs, ts, evaluation.model_variants, label_likely, store=store)

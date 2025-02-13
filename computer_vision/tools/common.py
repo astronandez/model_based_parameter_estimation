@@ -50,7 +50,7 @@ def defaultSetup(config):
     H = array(config["H"])
     Q = eye(H.shape[1]) * config["true_Q"]
     R = eye(H.shape[0]) * config["true_R"]
-
+    
     return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0
 
 ############# Data Utilities ###################

@@ -114,11 +114,16 @@ class MultivariableSimpleHarmonicOscillator2D(System):
         
     def update_matrices(self):
         # Recalculate the state transition matrix Φ and the input transition matrix B
-        self.Φ = array([[1, self.dt],
-                        [- (self.k * self.dt) / self.m, 1 - ((self.b / self.m) * self.dt)]])
+        self.Φ = array([[1, self.dt, 0, 0],
+                    [- (self.k * self.dt) / self.m, 1 - ((self.b / self.m) * self.dt), 0, 0],
+                    [0, 0, 1, self.dt],
+                    [0, 0, - (self.k * self.dt) / self.m, 1 - ((self.b / self.m) * self.dt)]])
 
-        self.B = array([[0],
-                        [self.dt/self.m]])
+        # Input transition matrix (B)
+        self.B = array([[0, 0],
+                    [self.dt/self.m, 0],
+                    [0, 0],
+                    [0, self.dt/self.m]])
 
 
 def ensure_positive_semidefinite(matrix: ndarray) -> ndarray:

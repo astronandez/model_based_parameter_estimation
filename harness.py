@@ -3,7 +3,7 @@ import sys
 
 from generator import Generator
 from fitter import fitToRealData
-from evaluation import Evaluation, defaultEvaluation
+from evaluation import Evaluation, defaultEvaluation, default2DEvaluation
 from computer_vision.tools.common import *
 
 def getFilePath():
@@ -75,13 +75,12 @@ class Harness:
         self.store_metrics = harness_config['store_metrics']
         self.store_graphs = harness_config['store_graphs']
         self.create_fit = harness_config['create_fit']
+        self.highdim = harness_config['highdim']
         
         self.evaluation_config = evaluation_config
         self.camera_config = camera_config
         self.detector_config = detector_config
-        
-
-        
+         
     def test(self):    
         # If true, we're creating a new dataset from a video file, else we're reading an existing dataset from a file
         if self.from_recording:
@@ -111,9 +110,11 @@ class Harness:
             params = getParams(f"Provide the true values of dataset: {self.evaluation_config['model_id']}  m, k, b, amplitude, phi, offset:")
             params_guess = getParams("Provide initial guess of the fitment function m, k, b, amplitude, phi, offset:", [0.01, 10.0, 0.001, 10, 3.14, 0.0])
             fitToRealData(self.evaluation_config['model_id'], params, params_guess, ts, cys, self.store_graphs)
-            
-        defaultEvaluation(self.evaluation, ts, dts, cys, store=self.store_graphs)
-
+        
+        if self.highdim:
+            default2DEvaluation(self.evaluation, self.evaluation_config, ts, dts, cxs, cys, store=self.store_graphs)
+        else:
+            defaultEvaluation(self.evaluation, self.evaluation_config, ts, dts, cys, store=self.store_graphs)
         
         plt.show()      
         

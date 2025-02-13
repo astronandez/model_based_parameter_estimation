@@ -11,9 +11,12 @@ component "config" as config #aqua
 
 component "Camera.py" as camera {
     component "init" as init
-    component "read" as read {
-        portin "real" as p1
-        portout "frame" as p2
+    component "initRecording" as initRec
+    component "startRecording" as read {
+        component "processFrame" as proc #Orange {
+            portin "real" as p1
+            portout "frame" as p2
+        }
     }
 
     config -l-> init
