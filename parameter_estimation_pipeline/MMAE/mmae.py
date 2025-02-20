@@ -33,7 +33,7 @@ class MMAE:
         # Update joint probabilities and get weighted estimate
         λ_hat, cumulative_posteriors = self.JointProbability.update(pdvs, self.λs)
 
-        self.manage_models(λ_hat, cumulative_posteriors)
+        # self.manage_models(λ_hat, cumulative_posteriors)
 
         return λ_hat, cumulative_posteriors, pdvs
     
@@ -43,17 +43,18 @@ class MMAE:
         Adjust low-posterior models closer to estimated dynamics (λ_hat),
         while keeping model diversity to ensure robust interpolation.
         """
-        threshold = 0.01  # Posterior probability threshold for poor performance
+        threshold = 0.0001  # Posterior probability threshold for poor performance
 
         for i, posterior in enumerate(cumulative_posteriors):
-            if posterior < threshold:
+            if posterior <= threshold:
                 self.model_failures[i] += 1  # Track model failures
                 
                 # If model consistently fails, replace it entirely
                 if self.model_failures[i] > 3:
-                    self.λs[i] = λ_hat #+ np.random.normal(0, 10.0, size=self.λs[i].shape)
+                    self.λs[i] = λ_hat #+ np.random.normal(0, 0.1, size=self.λs[i].shape)
+                    self.EstimatorLikelihoods[i].Estimator.SystemSimulator.model.λ = self.λs[i]
                     self.model_failures[i] = 0  # Reset failure count
-                    # print(f"Replacing Model {i} with new estimate {self.λs[i]}")
+                    print(f"Replacing Model {i} with new estimate {self.λs[i]}")
                     self.JointProbability.ConditionalProbabilityUpdate.cumulative_posteriors[i] = 1.0 / len(self.λs)
                     continue  # Skip further updates to avoid conflicting modifications
 
@@ -66,14 +67,25 @@ class MMAE:
                 self.λs[i] = (1 - alpha) * self.λs[i] + alpha * λ_hat
 
                 # Add small perturbations for exploration
+                perturbation_m = np.random.normal(0, 0.001)
+                perturbation_k = np.random.normal(0, 1.0)
+                perturbation_b = np.random.normal(0, 0.001)
+
+                self.λs[i][0] += perturbation_m
+                self.λs[i][1] += perturbation_k
+                self.λs[i][2] += perturbation_b
+
                 # perturbation = np.random.uniform(-5.0, 5.0, size=self.λs[i].shape)
-                perturbation = np.random.normal(0, 1.0, size=self.λs[i].shape)
-                self.λs[i] += perturbation
+                # perturbation = np.random.normal(0, 0.001, size=self.λs[i].shape)
+                # self.λs[i] += perturbation
 
                 # Update estimator parameters
                 self.EstimatorLikelihoods[i].Estimator.SystemSimulator.model.λ = self.λs[i]
 
                 # print(f"Model {i} updated from {old_lambda} to {self.λs[i]} based on posterior {posterior}")
+
+            else:
+                self.model_failures[i] = 0
 
         
 

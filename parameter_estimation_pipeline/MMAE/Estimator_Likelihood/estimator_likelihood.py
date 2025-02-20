@@ -16,7 +16,7 @@ class EstimatorLikelihood:
         self.Estimator = Estimator(λ, dt, H, Q, R, x0, noisy)
 
         # Spectral estimator initialization
-        # self.SpectralEstimator = SpectralEstimator(50, 1)
+        self.SpectralEstimator = SpectralEstimator(50, 1)
 
         # Compute scalar likelihood initialization
         self.PDV = PDV()
@@ -24,8 +24,9 @@ class EstimatorLikelihood:
 
     def update(self, u: ndarray, z: ndarray, dt: float):
         _, _, r, A = self.Estimator.update(u, z, dt)
-        # r_k_gamma, A_k_gamma = self.SpectralEstimator.update(r)
-        pdv = self.PDV.update(r, A)
+        r_k_gamma, A_k_gamma = self.SpectralEstimator.update(r)
+        pdv = self.PDV.update(r_k_gamma, A_k_gamma)
+        # pdv = self.PDV.update(r, A)
 
         return pdv
     

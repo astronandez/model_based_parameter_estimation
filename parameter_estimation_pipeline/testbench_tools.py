@@ -264,7 +264,7 @@ def mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_poster
     plot_λ_hat(times, lambda_hats, true_λ)
 
     # # Plot the heatmap for likelihoods (PDVs) over time
-    # plot_heatmap(pdvs_summary, times, λs, title="Heatmap of Model Likelihood Over Time")
+    plot_heatmap(pdvs_summary, times, λs, title="Heatmap of Model Likelihood Over Time")
 
     # # Plot the heatmap for model cumulative posterior probabilities over time
-    # plot_heatmap(cumulative_posteriors_summary, times, λs, title="Heatmap of Cumulative Posterior Probabilities Over Time")
+    plot_heatmap(cumulative_posteriors_summary, times, λs, title="Heatmap of Cumulative Posterior Probabilities Over Time")

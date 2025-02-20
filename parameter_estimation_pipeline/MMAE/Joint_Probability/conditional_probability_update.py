@@ -22,7 +22,7 @@ class ConditionalProbabilityUpdate:
         Update the model probabilities using Bayes' theorem with clipping to avoid collapse.
         """
         self.λs = λs
-        # self.cumulative_posteriors *= 0.8
+        self.cumulative_posteriors *= 0.6  # Decay previous posteriors
 
         # Calculate the marginal likelihood of z (the normalization factor):
         norm_factor = np.sum(pdvs * self.cumulative_posteriors) + 1.0e-40
@@ -31,7 +31,7 @@ class ConditionalProbabilityUpdate:
         new_posteriors = (pdvs * self.cumulative_posteriors) / norm_factor
 
         # Apply clipping to ensure posteriors are within bounds
-        new_posteriors = np.clip(new_posteriors, self.lower_bound, self.upper_bound)
+        # new_posteriors = np.clip(new_posteriors, self.lower_bound, self.upper_bound)
 
         # Renormalize posteriors to ensure they sum to 1 after clipping
         new_posteriors /= np.sum(new_posteriors)

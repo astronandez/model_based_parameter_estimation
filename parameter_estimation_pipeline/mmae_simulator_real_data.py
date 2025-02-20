@@ -18,7 +18,8 @@ class MMAESimulatorRealData:
         self.MMAE = MMAE(λs, dt, H, Q, R, x0, estimator_noisy)
     
     def update(self, t: int, z: np.ndarray, dt: float) -> float:
-        u = self.input_signal[t, :].reshape(-1, 1)
+        # u = self.input_signal[t, :].reshape(-1, 1)
+        u = np.array([0.0]).reshape(-1, 1)
 
         λ_hat, cumulative_posteriors, pdvs = self.MMAE.update(u, z, dt)
 
@@ -27,7 +28,7 @@ class MMAESimulatorRealData:
 
 if __name__ == "__main__":
     # Load configuration from JSON file
-    λs, m, k, b, dt, H, Q_mmae, R_mmae, Q_true_system, R_true_system, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy = simulation_configuration_setup("config_real_data.json")
+    λs, m, k, b, dt, H, _, _, _, _, Q_mmae, R_mmae, _, _, x0, max_time, max_steps, amplitude, random_seed, true_system_noisy = simulation_configuration_setup("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation/configuration_methods/parameter_estimation_configs/config_real_data.json")
 
     # Set random seed
     np.random.seed(random_seed)
@@ -44,8 +45,8 @@ if __name__ == "__main__":
     cumulative_posteriors_summary = []
     pdvs_summary = []
 
-    data = np.loadtxt("./Data/lemur_sticky_sport_load_measurements.csv", delimiter=",", usecols=4, skiprows=1)  # skiprows=1 if there is a header
-    dts = np.loadtxt("./Data/lemur_sticky_sport_load_measurements.csv", delimiter=",", usecols=2, skiprows=1)  # skiprows=1 if there is a header
+    data = np.loadtxt("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation/Data/m95_0_k80_80.csv", delimiter=",", usecols=6, skiprows=1)  # skiprows=1 if there is a header
+    dts = np.loadtxt("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation//Data/m95_0_k80_80.csv", delimiter=",", usecols=1, skiprows=1)  # skiprows=1 if there is a header
 
     # Init Initial state
     time_track = 0.0
@@ -68,6 +69,7 @@ if __name__ == "__main__":
         lambda_hats.append(λ_hat)
         cumulative_posteriors_summary.append(cumulative_posteriors)
         pdvs_summary.append(pdvs)
+        # print(λ_hat)
 
     # Convert zs to a 2D array after the loop
     zs = np.array(zs).reshape(len(zs), -1)
