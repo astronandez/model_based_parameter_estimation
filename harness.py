@@ -2,7 +2,7 @@ import os
 import sys
 
 from generator import MeasurementGenerator
-from fitter import fitToRealData
+from fitter import defaultFitment
 from evaluation import Evaluation
 from computer_vision.tools.common import *
 
@@ -83,9 +83,8 @@ class Harness:
      
     def storeFit(self, ts, cys):
         if self.store_fit:
-            params = getParams(f"Provide the true values of the dataset in float values: {self.case_id}  m, k, b, amplitude, phi, offset:")
-            params_guess = getParams("Provide initial guess of the fitment function in float values m, k, b, amplitude, phi, offset:", [0.01, 10.0, 0.001, 10, 3.14, 0.0])
-            fitToRealData(self.case_id, params, params_guess, ts, cys, self.store_graphs) 
+            params = getParams(f"Provide the true values of the dataset in float values: {self.case_id}  m, k, b:")
+            defaultFitment(self.case_id, params, ts, cys, self.store_graphs) 
      
     def shapeMeasurements(self, cxs, cys):
         if self.model_name == "MultivariableSimpleHarmonicOscillator2D":

@@ -1,0 +1,18 @@
+Model Metrics: sport_point_2
+=====================================
+Mean of center in y-axis: 194.10738
+Variance of center in y-axis: 18.902554
+Standard Deviation of center in y-axis: 4.347707
+=====================================
+Mean of center in x-axis: 317.374
+Variance of center in x-axis: 32572.143
+Standard Deviation of center in x-axis: 180.47754
+=====================================
+Mean of detection width: 27.863688
+Variance of detection width: 7.393482
+Standard Deviation of detection width: 2.719096
+=====================================
+Mean of detection height: 25.275108
+Variance of detection height: 3.3814723
+Standard Deviation of detection height: 1.838878 
+

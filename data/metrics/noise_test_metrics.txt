@@ -1,0 +1,10 @@
+Model: noise_test
+===== Measurement Noise Metrics =====
+Mean of y: 308.57777306388897
+Variance of y: 0.0016576910979181475
+Standard Deviation of y: 0.040714752828896646
+======== System Noise Metrics =======
+Mean of x: 381.1892580861111
+Variance of x: 0.019398840712253746
+Standard Deviation of x: 0.13927972110918999 
+

@@ -139,7 +139,7 @@ def plotDistribution(data, labels, store=True):
     file_name, title, xlabel, ylabel = labels
     data_mean_zero = data - mean(data)
     mu, sigma = norm.fit(data_mean_zero)
-    plt.figure(figsize=(12, 6))
+    plt.figure(figsize=(10, 6))
     histplot(data_mean_zero, bins=50, color="dodgerblue", stat="density", label="Data")
     kde = kdeplot(data_mean_zero, color='red', linestyle='-', label='KDE', linewidth=2)
     x_kde = kde.get_lines()[0].get_xdata()
@@ -161,7 +161,36 @@ def plotDistribution(data, labels, store=True):
     if store:    
         with open(file_name, "wb") as file:
             pickle.dump(plt.gcf(), file)
-    
+
+def plotFFT(freqs, fft_data, labels, store=True):
+    file_name, title, xlabel, ylabel = labels
+    plt.figure(figsize=(10, 6))
+    plt.plot(freqs, fft_data, label="FFT of x(t)")
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.grid(True)
+    if store:    
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)
+
+def plotFitment(t, y, y_fit, env_pos, env_neg, labels, store=True):
+    file_name, title, xlabel, ylabel = labels
+    plt.figure(figsize=(10, 6))
+    plt.scatter(t, y, label='Noisy Data (y)', color='blue', s=10)
+    plt.plot(t, y_fit, label='Fitted Curve (y)', color='red', linewidth=2)
+    plt.plot(t, env_pos, label=f"Envelope (+)", color="green", linewidth=2)
+    plt.plot(t, env_neg, label=f"Envelope (-)", color="green", linewidth=2)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.grid(True)
+    if store:    
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)   
+
 if __name__ == "__main__":
     def loadCompleteGraphs(model_id):
         display(f"./graphs/{model_id}_x_measurements.fig")

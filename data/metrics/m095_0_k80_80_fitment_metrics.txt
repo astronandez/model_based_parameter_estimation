@@ -1,0 +1,14 @@
+Estimated and Fitted Parameters:
+Estimated alpha = 0.017, Fitted alpha = 0.019
+Estimated omega = 29.522, Fitted omega = 29.534
+Estimated phi = 0.489, Fitted phi = 0.501
+
+Computed System Parameters:
+Fitted Spring Constant k = 82.867012 N/m
+Fitted Damping Coefficient b = 0.003536 Ns/m 
+
+Actual Spring Constant k = 80.800000 N/m
+Actual Damping Coefficient b: 0.003210 Ns/m (assuming m = 0.095 kg) 
+
+Original parameter ratios k/m: 850.5263157894736 b/m: 0.03378947368421053
+Fitted parameter ratios k/m: 872.2843407554743 b/m: 0.037221994252625734

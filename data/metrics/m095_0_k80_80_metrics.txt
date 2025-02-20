@@ -1,0 +1,18 @@
+Model Metrics: m095_0_k80_80
+=====================================
+Mean of center in y-axis: 330.5773314341278
+Variance of center in y-axis: 13.825569327488745
+Standard Deviation of center in y-axis: 3.7182750473154544
+=====================================
+Mean of center in x-axis: 381.431163049267
+Variance of center in x-axis: 2.51296813747832
+Standard Deviation of center in x-axis: 1.5852344108926983
+=====================================
+Mean of detection width: 44.15372823551411
+Variance of detection width: 0.12548501127972297
+Standard Deviation of detection width: 0.35423863606292716
+=====================================
+Mean of detection height: 44.207115097835846
+Variance of detection height: 0.12451294308605015
+Standard Deviation of detection height: 0.35286391581748644 
+
