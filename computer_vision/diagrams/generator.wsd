@@ -1,0 +1,11 @@
+@startuml generator
+left to right direction
+skinparam BackgroundColor transparent
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title generator.py block diagram
+
+
+
+@enduml

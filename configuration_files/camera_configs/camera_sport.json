@@ -1,0 +1,7 @@
+{
+    "frame_w": 640,
+    "frame_h": 360,
+    "input": "./videos/sport.mp4",
+    "output_path": "./videos/",
+    "write": true
+}

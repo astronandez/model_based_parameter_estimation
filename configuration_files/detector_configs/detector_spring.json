@@ -1,6 +1,9 @@
 {
-    "frame_w": 480,
-    "frame_h": 640,
-    "detector": "./computer_vision/cv_models/spring_detector.pt",
-    "output": "./output/"
+    "frame_w": 640,
+    "frame_h": 480,
+    "detector": "./computer_vision/cv_models/sticky_spring_detector.pt",
+    "output": "./output/",
+    
+    "min_dist": 100,
+    "max_age": 2
 }

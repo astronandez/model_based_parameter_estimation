@@ -52,44 +52,44 @@ def plotValidateSyntheticSystems(model:list, sim_zs, t, u, resolution, labels, s
             pickle.dump(plt.gcf(), file)
         
 def plotLambdaHat(t, lambda_hats, true_lambda, labels, store=True):
-        # Convert the list of lambda_hats (which are vectors) to a numpy array for easy indexing
-        file_name, title = labels
-        fig, ax1 = plt.subplots(figsize=(10, 5))
+    # Convert the list of lambda_hats (which are vectors) to a numpy array for easy indexing
+    file_name, title = labels
+    fig, ax1 = plt.subplots(figsize=(10, 5))
 
-        # Plot estimated mass (m) on the primary y-axis
-        ax1.set_xlabel('Time (s)')
-        ax1.set_ylabel('Mass (m)', color='blue')
-        ax1.plot(t, lambda_hats[:, 0], label='Estimated mass (m)', color='blue', linestyle='-')
-        ax1.axhline(y=true_lambda[0], color='blue', linestyle='--', label='True mass (m)')
-        ax1.tick_params(axis='y', labelcolor='blue')
+    # Plot estimated mass (m) on the primary y-axis
+    ax1.set_xlabel('Time (s)')
+    ax1.set_ylabel('Mass (m)', color='blue')
+    ax1.plot(t, lambda_hats[:, 0], label='Estimated mass (m)', color='blue', linestyle='-')
+    ax1.axhline(y=true_lambda[0], color='blue', linestyle='--', label='True mass (m)')
+    ax1.tick_params(axis='y', labelcolor='blue')
 
-        # Create a secondary y-axis for spring constant (k)
-        ax2 = ax1.twinx()
-        ax2.set_ylabel('Spring constant (k)', color='green')
-        ax2.plot(t, lambda_hats[:, 1], label='Estimated spring constant (k)', color='green', linestyle='-')
-        ax2.axhline(y=true_lambda[1], color='green', linestyle='--', label='True spring constant (k)', linewidth=3)
-        ax2.tick_params(axis='y', labelcolor='green')
+    # Create a secondary y-axis for spring constant (k)
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('Spring constant (k)', color='green')
+    ax2.plot(t, lambda_hats[:, 1], label='Estimated spring constant (k)', color='green', linestyle='-')
+    ax2.axhline(y=true_lambda[1], color='green', linestyle='--', label='True spring constant (k)', linewidth=3)
+    ax2.tick_params(axis='y', labelcolor='green')
 
-        # Create another secondary y-axis for damping coefficient (b) (offset from the right)
-        ax3 = ax1.twinx()
-        ax3.spines['right'].set_position(('outward', 60))  # Offset third axis to the right
-        ax3.set_ylabel('Damping coefficient (b)', color='red')
-        ax3.plot(t, lambda_hats[:, 2], label='Estimated damping coefficient (b)', color='red', linestyle='-')
-        ax3.axhline(y=true_lambda[2], color='red', linestyle='--', label='True damping coefficient (b)')
-        ax3.tick_params(axis='y', labelcolor='red')
+    # Create another secondary y-axis for damping coefficient (b) (offset from the right)
+    ax3 = ax1.twinx()
+    ax3.spines['right'].set_position(('outward', 60))  # Offset third axis to the right
+    ax3.set_ylabel('Damping coefficient (b)', color='red')
+    ax3.plot(t, lambda_hats[:, 2], label='Estimated damping coefficient (b)', color='red', linestyle='-')
+    ax3.axhline(y=true_lambda[2], color='red', linestyle='--', label='True damping coefficient (b)')
+    ax3.tick_params(axis='y', labelcolor='red')
 
-        # Add legends for each axis
-        ax1.legend(loc='upper left')
-        ax2.legend(loc='upper right')
-        ax3.legend(loc='lower right')
+    # Add legends for each axis
+    ax1.legend(loc='upper left')
+    ax2.legend(loc='upper right')
+    ax3.legend(loc='lower right')
 
-        plt.title(title)
-        fig.tight_layout()  # To avoid overlap of labels
-        plt.grid(True)
-        
-        if store:
-            with open(file_name, "wb") as file:
-                pickle.dump(plt.gcf(), file)
+    plt.title(title)
+    fig.tight_layout()  # To avoid overlap of labels
+    plt.grid(True)
+    
+    if store:
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)
 
 def plotSpringConstant(file_name, x, f, store=True):
     plt.figure(figsize=(10, 5))
@@ -121,9 +121,8 @@ def plotHeatmap(models_summary, ts, λs, labels, store=True):
         with open(file_name, "wb") as file:
             pickle.dump(plt.gcf(), file)
         
-def plotFitCurve(params, z_orig, t_orig, z_fit, t_fit, labels, store=True):
+def plotFitCurve(z_orig, t_orig, z_fit, t_fit, labels, store=True):
     file_name, title = labels
-    # m, k, b, amplitude, phi, offset = params
     plt.figure(figsize=(10, 6))
     plt.scatter(t_orig, z_orig, label='Original Cirve', s=10)
     plt.plot(t_fit, z_fit, label='Fitted Curve', color='red')
@@ -164,18 +163,18 @@ def plotDistribution(data, labels, store=True):
             pickle.dump(plt.gcf(), file)
     
 if __name__ == "__main__":
-    def loadModelGraphs(model_id):
+    def loadCompleteGraphs(model_id):
         display(f"./graphs/{model_id}_x_measurements.fig")
         display(f"./graphs/{model_id}_y_measurements.fig")
         display(f"./graphs/{model_id}_width_measurements.fig")
         display(f"./graphs/{model_id}_height_measurements.fig")
-        display(f"./graphs/{model_id}_cxs_distribution.fig")
-        display(f"./graphs/{model_id}_cys_distribution.fig")
+        display(f"./graphs/{model_id}_x_distribution.fig")
+        display(f"./graphs/{model_id}_y_distribution.fig")
         display(f"./graphs/{model_id}_width_distribution.fig")
         display(f"./graphs/{model_id}_height_distribution.fig")
-        display(f"./graphs/{model_id}_likelyhoods.fig")
-        display(f"./graphs/{model_id}_posteriors.fig")
-        display(f"./graphs/{model_id}_estimations.fig")
+        # display(f"./graphs/{model_id}_likelyhoods.fig")
+        # display(f"./graphs/{model_id}_posteriors.fig")
+        # display(f"./graphs/{model_id}_estimations.fig")
     
     ############### Show Validation Graph ###############
     # display(f"./data/level0.fig")
@@ -183,8 +182,13 @@ if __name__ == "__main__":
     # display(f"./data/level2.fig")
     
     ############### Show Spring Detection Graph ###############
-    loadModelGraphs("m095_0_k80_80")
-    loadModelGraphs("m095_0_k80_80_2D")
+    # loadModelGraphs("m095_0_k80_80_point_0")
+    # loadModelGraphs("noise_test_point_0")
+    loadCompleteGraphs("sport_point_0")
+    loadCompleteGraphs("sport_point_1")
+    loadCompleteGraphs("sport_point_2")
+    loadCompleteGraphs("sport_point_3")
+    # loadModelGraphs("m095_0_k80_80_2D")
     plt.show()
     
     ############### Show Spring Constant Graphs ###############

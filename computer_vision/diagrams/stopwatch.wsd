@@ -1,0 +1,29 @@
+@startuml stopwatch
+
+left to right direction
+skinparam BackgroundColor transparent
+skinparam componentStyle rectangle
+skinparam linetype ortho
+
+title stopwatch.py block diagram
+
+component "curr_time" as ctime #lime
+component " " as in1 #red
+component " " as in #Aqua
+
+component "stopwatch.py" as cm {
+    component init 
+    component sync {
+        component "start" as watchstart
+        portout "curr_time" as pin0
+        portin "function call" as pin1
+    }
+    init -u[hidden]-> sync
+    
+}
+
+in -l-> init
+in1 --> pin1 
+pin0 ---> ctime
+
+@enduml

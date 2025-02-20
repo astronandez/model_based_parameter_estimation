@@ -1,0 +1,10 @@
+{
+    "case_id": "m095_0_k80_80_2D",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_m095_0_k80_80_2D.json",
+    "camera_config_path": "./configuration_files/camera_configs/camera_m095_0_k80_80.json",
+    "detector_config_path": "./configuration_files/detector_configs/detector_base.json",
+    "from_recording": false,
+    "store_metrics": true,
+    "store_graphs": true,
+    "store_fit": false
+}

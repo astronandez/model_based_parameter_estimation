@@ -9,9 +9,9 @@ from ....System.system_simulator import SystemSimulator
 from .estimator_update import EstimatorUpdate
 
 class Estimator:
-    def __init__(self, λ, dt, H, Q, R, x0, noisy):
+    def __init__(self, λ, dt, H, Q, R, x0, noisy, model_name=None):
         # Dynamic System Simulator initialization for state estimator
-        self.SystemSimulator = SystemSimulator(λ, dt, H, Q, R, x0, noisy)
+        self.SystemSimulator = SystemSimulator(λ, dt, H, Q, R, x0, noisy, model_name)
 
         # state Estimator update initialization
         self.EstimatorUpdate = EstimatorUpdate(self.SystemSimulator.model, eye(self.SystemSimulator.model.Φ.shape[1]), x0)

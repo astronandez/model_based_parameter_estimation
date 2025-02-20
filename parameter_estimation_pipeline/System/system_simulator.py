@@ -7,10 +7,12 @@ from ..System.Model.models import MultivariableSimpleHarmonicOscillator, Multiva
 from ..System.plant import Plant
 
 class SystemSimulator:
-    def __init__(self, λ, dt, H, Q, R, x0, noisy):
+    def __init__(self, λ, dt, H, Q, R, x0, noisy, model_name="MultivariableSimpleHarmonicOscillator"):
         # Model initialization
-        self.model = MultivariableSimpleHarmonicOscillator(λ, dt, H, Q, R)
-        # self.model = MultivariableSimpleHarmonicOscillator2D(λ, dt, H, Q, R)
+        if model_name in globals():
+            self.model = globals()[model_name](λ, dt, H, Q, R)
+        else:
+            raise ValueError(f"Model '{model_name}' not found.")
 
         # Plant initialization
         self.plant = Plant(self.model, x0, noisy)

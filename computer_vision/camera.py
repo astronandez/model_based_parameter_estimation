@@ -10,12 +10,13 @@ class Camera:
     frame_h: int
     
     # Assign object parameters using config file
-    def __init__(self, config: json):
+    def __init__(self, config: json, case_id):
         self.input = config['input']
         self.path = config['output_path']
         self.frame_w = config['frame_w']
         self.frame_h = config['frame_h']
         self.write = config['write']
+        self.case_id = case_id
     
     # Initilization function for recording functions, this implementation avoids opening the camera
     # automatically when the camera object is initialized
@@ -35,7 +36,7 @@ class Camera:
                                              cv.CAP_PROP_FPS))
         
         if self.write:
-            final_path = f"{self.path}recording_{time.strftime('%Y%m%d_%H%M%S')}"
+            final_path = f"{self.path}{self.case_id}_{time.strftime('%Y%m%d_%H%M%S')}"
             print(f"Initializing Video Writer, save location at: {final_path}.mp4")
             output = cv.VideoWriter(f"{final_path}.mp4", 
                                     cv.VideoWriter_fourcc(*'mp4v'), fps, (self.frame_w, self.frame_h))
@@ -65,13 +66,12 @@ class Camera:
     
     def processFrame(self, frame):
         """
-        This function is the default behavior of a camera object rotated 90 deg
+        This function is the default behavior of a camera object
         for addtional processing functionality override function
         
         frame: frame from video feed or video input file
 
         """
-        frame = cv.rotate(frame, cv.ROTATE_90_CLOCKWISE)
         
         # param write is set through config file
         if self.write:
@@ -79,10 +79,14 @@ class Camera:
             
         cv.imshow('Recording', frame)  
         return frame
+    
+    def defaultRecording(self):
+        self.initRecording(self.case_id)
+        self.startRecording()
             
 if __name__ == "__main__":
+    case_id = 'm095_0_k80_80'
     config_path = './configuration_files/camera_configs/camera_base.json'
     config = loadConfig(config_path)
-    camera = Camera(config)
-    camera.initRecording()
-    camera.startRecording()
+    camera = Camera(config, case_id)
+    camera.defaultRecording()

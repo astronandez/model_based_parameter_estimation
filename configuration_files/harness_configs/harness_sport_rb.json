@@ -1,0 +1,10 @@
+{
+    "case_id": "sport_rb",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_sport_rb.json",
+    "camera_config_path": "./configuration_files/camera_configs/camera_sport.json",
+    "detector_config_path": "./configuration_files/detector_configs/detector_vehicle.json",
+    "from_recording": false,
+    "store_metrics": true,
+    "store_graphs": true,
+    "store_fit": false
+}

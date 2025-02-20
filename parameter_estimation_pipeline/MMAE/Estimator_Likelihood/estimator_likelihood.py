@@ -10,9 +10,9 @@ from ...System.system_simulator import SystemSimulator
 from .Spectral_Estimator.spectral_estimator import SpectralEstimator
 
 class EstimatorLikelihood:
-    def __init__(self, λ, dt, H, Q, R, x0, noisy):
+    def __init__(self, λ, dt, H, Q, R, x0, noisy, model_name=None):
         # State estimator initialization
-        self.Estimator = Estimator(λ, dt, H, Q, R, x0, noisy)
+        self.Estimator = Estimator(λ, dt, H, Q, R, x0, noisy, model_name)
 
         # Spectral estimator initialization
         # self.SpectralEstimator = SpectralEstimator(50, 1)

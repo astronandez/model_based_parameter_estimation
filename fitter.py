@@ -5,15 +5,14 @@ from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 from scipy.fftpack import fft, fftfreq
 
-# def dampedCosine(t, m, k, b, amplitude, phi, offset):
-#     alpha = (b/(2 * m))
-#     omega = sqrt((k/m) - alpha **2)
-#     # return abs(amplitude) * exp(-alpha * t) * cos(omega * t + phi) + offset
-#     exponent = -alpha * t
-#     exponent = clip(exponent, -700, 700)  # Clip to prevent overflow
-#     return abs(amplitude) * exp(exponent) * cos(omega * t + phi) + offset
+def dampedCosine(t, m, k, b, amplitude, phi, offset):
+    alpha = (b/(2 * m))
+    omega = sqrt((k/m) - alpha **2)
+    exponent = -alpha * t
+    exponent = clip(exponent, -700, 700)  # Clip to prevent overflow
+    return abs(amplitude) * exp(exponent) * cos(omega * t + phi) + offset
 
-def dampedCosine(t, alpha, omega, amplitude, phi, offset):
+def dampedCosine2(t, alpha, omega, amplitude, phi, offset):
     exponent = clip((-alpha * t), -700, 700)  # Clip to prevent overflow
     return abs(amplitude) * exp(exponent) * cos(omega * t + phi) + offset
 
@@ -46,6 +45,8 @@ def fitToRealData(model_id, params, params_guess, ts, cys, store=True):
 
 if __name__ == "__main__":
     from scipy.interpolate import interp1d
+    from computer_vision.tools.dataloader import Dataloader
+    
     def testbenchGuessParamFromSynthetic(model_id, params, params_guess, bounds, tmax, steps):
         m, k, b, amplitude, phi, offset= params
 
@@ -109,6 +110,7 @@ if __name__ == "__main__":
         print("Original Ratios k/m:", k/m, "b/m:", b/m)
         print("Fitment Ratios k/m:", k_fit/m_fit, "b/m:", b_fit/m_fit)
         plt.show()
+    
     # Used during 1:1's to fit to a synthetic function
     # model_id = "m105_5_k80_80"
     # params = [0.1055, 80.80, 0.005, -0.005, -pi, 343]
@@ -118,6 +120,7 @@ if __name__ == "__main__":
     # tmax = 100
     # steps = 5000  
     # testbenchGuessParamFromSynthetic(model_id, params, params_guess, bounds, tmax, steps)
+    
     def tester():
         model_id = "m95_0_k80_80"
         dataloader = Dataloader("./output/")
@@ -203,7 +206,10 @@ if __name__ == "__main__":
         plt.show()
         # testbenchGuessParamFromReal2(model_id, m, k, b, params, params_guess, bounds)
         
-    model_id = "m95_0_k80_80"
+    model_id = "m095_0_k80_80"
+    m = 0.095
+    k = 80.80
+    b = 0.0007283235233172228
     dataloader = Dataloader("./output/")
     ts, dts, cxs, cys, widths, heights = dataloader.load(f"./data/{model_id}.csv")
     y = sqrt(mean(cys ** 2)) - cys
@@ -232,12 +238,13 @@ if __name__ == "__main__":
     print("Fit Alpha:", alpha)
     
     omega_0 = sqrt(omega**2 + alpha**2)
-    k = 0.095 * omega_0**2
-    b = 2 * 0.095 * alpha
-    print("k:", k)
-    print("b:", b)
+    k_fit = m * omega**2
+    b_fit = 2 * m * alpha
     
-    t, z, z_mu = createSyntheticFunction(dampedCosine, [abs(alpha), omega, 16.839088144725444, -0.072, 0.0], ts[-1], len(ts))
+    print("Original Ratios k/m:", k/m, "b/m:", b/m)
+    print("Fitment Ratios k/m:", k_fit/m, "b/m:", b_fit/m)
+    
+    t, z, z_mu = createSyntheticFunction(dampedCosine2, [abs(alpha), omega, 16.839088144725444, -0.072, 0.0], ts[-1], len(ts))
     
     # Plot the frequency spectrum
     plt.figure(figsize=(10, 6))

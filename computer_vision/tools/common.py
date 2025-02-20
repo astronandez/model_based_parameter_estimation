@@ -2,7 +2,6 @@ from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros
 import json
 import cv2 as cv
 from itertools import product
-from ..tools.dataloader import Dataloader
 from .grapher import *
 
 ############## Config Utilities #################
@@ -11,6 +10,7 @@ def loadConfig(config_path):
         return json.load(f)
 
 def defaultSetup(config):
+    model_name = config["model_name"]
     Q_start = config["Q_variants_start"]
     Q_end = config["Q_variants_end"]
     Q_step = config["Q_variants_step"]
@@ -51,7 +51,7 @@ def defaultSetup(config):
     Q = eye(H.shape[1]) * config["true_Q"]
     R = eye(H.shape[0]) * config["true_R"]
     
-    return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0
+    return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0, model_name
 
 ############# Data Utilities ###################
 def defaultMetrics(data):
@@ -60,38 +60,38 @@ def defaultMetrics(data):
     data_std = std(data)
     return data_mean, data_var, data_std
     
-def inspectData(model_id, ts, cxs, cys, widths, heights, store=True):
-    labels1 = [f"./graphs/{model_id}_y_measurements.fig",
-                f"Detector Measurements, position in frame (y-axis)",
+def detectionGraphics(case_id, ts, cxs, cys, widths, heights, store=True):
+    labels1 = [f"./graphs/{case_id}_y_measurements.fig",
+                f"Detector Measurements {case_id}, position in frame (y-axis)",
                 "Time (s)",
                 "Position (px)"]
-    labels2 = [f"./graphs/{model_id}_x_measurements.fig",
-                f"Detector Measurements, position in frame (x-axis)",
+    labels2 = [f"./graphs/{case_id}_x_measurements.fig",
+                f"Detector Measurements {case_id}, position in frame (x-axis)",
                 "Time (s)",
                 "Position (px)"]
-    labels3 = [f"./graphs/{model_id}_width_measurements.fig",
-                f"Detector Measurements, width of object over time",
+    labels3 = [f"./graphs/{case_id}_width_measurements.fig",
+                f"Detector Measurements {case_id}, width of object over time",
                 "Time (s)",
                 "Magnitude (px)"]
-    labels4 = [f"./graphs/{model_id}_height_measurements.fig",
-                f"Detector Measurements, height of object over time",
+    labels4 = [f"./graphs/{case_id}_height_measurements.fig",
+                f"Detector Measurements {case_id}, height of object over time",
                 "Time (s)",
                 "Magnitude (px)"]
     
-    label_cys = [f"./graphs/{model_id}_cys_distribution.fig",
-                f'Probability Distribution {model_id} y-axis center (Mean = 0)',
+    label_cys = [f"./graphs/{case_id}_y_distribution.fig",
+                f'Probability Distribution {case_id} y-axis center (Mean = 0)',
                 "Position (px)",
                 "Probability Density"]
-    label_cxs = [f"./graphs/{model_id}_cxs_distribution.fig",
-                f'Probability Distribution {model_id} x-axis center (Mean = 0)',
+    label_cxs = [f"./graphs/{case_id}_x_distribution.fig",
+                f'Probability Distribution {case_id} x-axis center (Mean = 0)',
                 "Position (px)",
                 "Probability Density"]
-    label_height = [f"./graphs/{model_id}_height_distribution.fig",
-                f'Probability Distribution {model_id} object height (Mean = 0)',
+    label_height = [f"./graphs/{case_id}_height_distribution.fig",
+                f'Probability Distribution {case_id} object height (Mean = 0)',
                 "Magnitude (px)",
                 "Probability Density"]
-    label_width = [f"./graphs/{model_id}_width_distribution.fig",
-                f'Probability Distribution {model_id} object width (Mean = 0)',
+    label_width = [f"./graphs/{case_id}_width_distribution.fig",
+                f'Probability Distribution {case_id} object width (Mean = 0)',
                 "Magnitude (px)",
                 "Probability Density"]
     
@@ -103,6 +103,30 @@ def inspectData(model_id, ts, cxs, cys, widths, heights, store=True):
     plotDistribution(cxs, label_cxs, store)
     plotDistribution(widths, label_width, store)
     plotDistribution(heights, label_height, store)
+
+def getDataMetrics(case_id, cxs, cys, widths, heights):
+    cy_mean, cy_var, cy_std = defaultMetrics(cys)
+    cx_mean, cx_var, cx_std = defaultMetrics(cxs)
+    wid_mean, wid_var, wid_std = defaultMetrics(widths)
+    h_mean, h_var, h_std = defaultMetrics(heights)
+        
+    print(f"Model Metrics: {case_id}")
+    print("=====================================")
+    print("Mean of center in y-axis:", cy_mean) 
+    print("Variance of center in y-axis:", cy_var)
+    print("Standard Deviation of center in y-axis:", cy_std)
+    print("=====================================")
+    print("Mean of center in x-axis:", cx_mean) 
+    print("Variance of center in x-axis:", cx_var)
+    print("Standard Deviation of center in x-axis:", cx_std)
+    print("=====================================")
+    print("Mean of detection width:", wid_mean) 
+    print("Variance of detection width:", wid_var)
+    print("Standard Deviation of detection width:", wid_std)
+    print("=====================================")
+    print("Mean of detection height:", h_mean) 
+    print("Variance of detection height:", h_var)
+    print("Standard Deviation of detection height:", h_std, "\n") 
 
 ############## Input Utilities #################
 def impulse(steps, step_impulse, amplitude, dt):
@@ -144,7 +168,6 @@ def step_function(steps, amplitude, change=100):
 
 ############## CV Utilities ####################
 def centerToBoundingBox(cx, cy, w, h):
-
     x1 = cx - (0.5 * w)
     y1 = cy - 0.5 * h
     x2 = cx + 0.5 * w
@@ -152,83 +175,9 @@ def centerToBoundingBox(cx, cy, w, h):
     
     return x1, y1, x2, y2
 
-def classToWeight(car_type_label):
-    classes = ['Convertible', 'Crossover', 'Fastback', 'Hardtop Convertible', 'Hatchback', 'MPV', 'Minibus', 'Pickup Truck', 'SUV', 'Sedan', 'Sports', 'Wagon']
-
-    if car_type_label == 0:
-        return 4462
-    elif car_type_label == 1:
-        return 4331
-    elif car_type_label == 2:
-        return 3743
-    elif car_type_label == 3:
-        return 2992
-    elif car_type_label == 4:
-        return 4451
-    elif car_type_label == 5:
-        return 3448
-    elif car_type_label == 6:
-        return 3695
-    elif car_type_label == 7:
-        return 4433
-    elif car_type_label == 8:
-        return 3466
-    elif car_type_label == 9:
-        return 3494
-    elif car_type_label == 10:
-        return 4037
-    elif car_type_label == 11:
-        return 3092
-    else:
-        return 0
-
-def drawDetections(frame, cx, cy, width, height):
+def drawDetections(frame, id, cx, cy, width, height):
     x1, y1, x2, y2 = centerToBoundingBox(cx, cy, width, height)
     cv.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
     cv.putText(frame, f'z: {cy} px', (int(cx), int(cy) - int(height/2 + 5)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    cv.putText(frame, f'id: {id}', (int(cx), int(cy) + int(height/2 + 15)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     return frame
-
-
-
-if __name__ == "__main__":
-    pass
-    # dataloader = Dataloader()
-    # dataloader2 = Dataloader()
-    # config_path = "./configurations/lemur_sticky_sport2.json"
-    # config = loadConfig(config_path)
-    # dataloader.loadMeasurements(f"{config['measurements_output'][:-4]}_lower{config['measurements_output'][-4:]}")
-    # dataloader2.loadMeasurements(f"{config['measurements_output'][:-4]}_upper{config['measurements_output'][-4:]}")
-
-    # start = config['t_start']
-    # end = config['t_end']
-    
-    # t1, z1 = dataloader.time, dataloader.cy
-    # t2, z2 = dataloader2.time, dataloader2.cy
-    # r1_seg = z1[start:end]
-    # r2_seg = z2[start:end]
-    
-    # measurements = []
-    # for i in range(len(t1)):
-    #     z = (z2[i] - sqrt(mean(square(r2_seg)))) - (z1[i] - sqrt(mean(square(r1_seg))))
-    #     measurements.append(z)
-    
-    # print("Measurement mean(z) = ", mean(r1_seg))
-    # print(f"Measurement Varience var(z) = {var(r1_seg)}")
-    # print(f"Measurement Standard Deviation std(z) = {std(r1_seg)}")
-    # print(f"Initial Position = {r1_seg[0]}")
-    # print("Measurement mean(z) = ", mean(r2_seg))
-    # print(f"Measurement Varience var(z) = {var(r2_seg)}")
-    # print(f"Measurement Standard Deviation std(z) = {std(r2_seg)}")
-    # print(f"Initial Position = {r2_seg[0]}")
-    
-    # # grapher.plotMeasurements(f"{config_path}_lower", f"{config['graph_output']}_lower", dataloader.time[start:end], (dataloader.cy[start:end] - sqrt(mean(square(dataloader.cy[start:end])))))
-    # # grapher.plotMeasurements(f"{config_path}_upper", f"{config['graph_output']}_upper", dataloader2.time[start:end], (dataloader2.cy[start:end] - sqrt(mean(square(dataloader2.cy[start:end])))))
-    
-    # # grapher.plotMeasurements(f"{config_path}_lower", f"{config['graph_output']}_lower", t1, (z1 - sqrt(mean(square(r1_seg)))))
-    # # grapher.plotMeasurements(f"{config_path}_upper", f"{config['graph_output']}_upper", t2, (z2 - sqrt(mean(square(r2_seg)))))
-    # # grapher.plotMeasurements(config_path, config['graph_output'], t2, measurements)
-    
-    # full_data = zip(list(range(0, len(t1))), t1, dataloader2.dt, dataloader2.cx, measurements, dataloader2.width, dataloader2.height)
-    # header = ["index", "time", "dt", "Center (x-axis)", "Center (y-axis)", "box width", "box height"]
-    # dataloader.storeData(full_data, header, f"{config['measurements_output']}")
-    # plt.show()

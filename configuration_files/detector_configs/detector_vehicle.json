@@ -1,0 +1,9 @@
+{
+    "frame_w": 640,
+    "frame_h": 360,
+    "detector": "./computer_vision/cv_models/sticky_detector.pt",
+    "output": "./output/",
+    
+    "min_dist": 100,
+    "max_age": 3
+}

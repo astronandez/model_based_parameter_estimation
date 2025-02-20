@@ -1,0 +1,32 @@
+{
+    "model_name": "MultivariableSimpleHarmonicOscillator",
+    "dt": 0.1,
+    "H": [[1, 0]],
+    "x0": [[0], [0]],
+    
+    "true_m": 0.0,
+    "true_k": 0.0,
+    "true_b": 0.0,
+    "true_Q": 0.0,
+    "true_R": 0.0,
+
+    "Q_variants_start": 0.0,
+    "Q_variants_end": 0.0,
+    "Q_variants_step": 1.0,
+
+    "R_variants_start": 0.0,
+    "R_variants_end": 0.0,
+    "R_variants_step": 1.0,
+
+    "m_variants_start": 0.0,
+    "m_variants_end": 0.0,
+    "m_variants_step": 1.0,
+
+    "k_variants_start": 0.0,
+    "k_variants_end": 0.0,
+    "k_variants_step": 1.0,
+
+    "b_variants_start": 0.0,
+    "b_variants_end": 0.0,
+    "b_variants_step": 1.0
+}

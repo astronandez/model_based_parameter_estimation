@@ -21,6 +21,7 @@ class Dataloader:
                     writer.writerow(header)
                 
                 writer.writerows(rows)
+        return csv_file
                 
     def load(self, path: str):
         data = loadtxt(path, delimiter=',', skiprows=1)

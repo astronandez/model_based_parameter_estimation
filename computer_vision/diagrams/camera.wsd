@@ -8,21 +8,27 @@ title camera.py block diagram
 component "Real Image" as in #red
 component "Frame" as out  #lime
 component "config" as config #aqua
+interface "case_id" as case #aqua
 
-component "Camera.py" as camera {
+component "camera.py" as camera {
     component "init" as init
-    component "initRecording" as initRec
-    component "startRecording" as read {
-        component "processFrame" as proc #Orange {
-            portin "real" as p1
-            portout "frame" as p2
+    component "defaultRecording" as def {
+        component "initRecording" as initRec
+        component "startRecording" as read {
+            component "processFrame" as proc {
+                portin "real" as p1
+                portout "frame" as p2
+            }
         }
     }
 
     config -l-> init
     init -u[hidden]- read
-
+    init --> initRec
+    initRec -u-> read
 }
+
+case -r-> init
 in --> p1
 p2 --> out
 @enduml

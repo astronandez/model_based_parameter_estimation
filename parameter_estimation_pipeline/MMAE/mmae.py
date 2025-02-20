@@ -7,13 +7,13 @@ from ..MMAE.Joint_Probability.joint_probability import JointProbability
 from ..System.system_simulator import SystemSimulator
 
 class MMAE:
-    def __init__(self, λs, dt, H, Q, R, x0, noisy):
+    def __init__(self, λs, dt, H, Q, R, x0, noisy, model_name=None):
         # Store parameter sets
         self.λs = np.array(λs)
 
         # Estimator likelihood simulator initialization
         self.EstimatorLikelihoods = [
-            EstimatorLikelihood(λ, dt, H, Q, R, x0, noisy) for λ in λs
+            EstimatorLikelihood(λ, dt, H, Q, R, x0, noisy, model_name) for λ in λs
         ]
 
         # Joint probability simulator initialization
@@ -33,7 +33,7 @@ class MMAE:
         # Update joint probabilities and get weighted estimate
         λ_hat, cumulative_posteriors = self.JointProbability.update(pdvs, self.λs)
 
-        self.manage_models(λ_hat, cumulative_posteriors)
+        # self.manage_models(λ_hat, cumulative_posteriors)
 
         return λ_hat, cumulative_posteriors, pdvs
     
