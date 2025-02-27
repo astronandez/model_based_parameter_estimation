@@ -23,12 +23,16 @@ class EstimatorLikelihood:
 
 
     def update(self, u: ndarray, z: ndarray, dt: float):
-        _, _, r, A = self.Estimator.update(u, z, dt)
-        r_k_gamma, A_k_gamma = self.SpectralEstimator.update(r)
-        pdv = self.PDV.update(r_k_gamma, A_k_gamma)
-        # pdv = self.PDV.update(r, A)
+        _, _, r, A, ẑ = self.Estimator.update(u, z, dt)
 
-        return pdv
+        # Spectral estimator update
+        # r_k_gamma, A_k_gamma = self.SpectralEstimator.update(r)
+        # pdv = self.PDV.update(r_k_gamma, A_k_gamma)
+        
+        # Scalar likelihood update
+        pdv = self.PDV.update(r, A)
+
+        return pdv, r, A, ẑ
     
 
 ########### Testbench ###########

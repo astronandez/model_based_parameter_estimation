@@ -97,7 +97,48 @@ def plot_csv_data(csv_file: str):
     plt.title('Measurements Over Time')
     plt.legend(title='Columns')
     plt.grid(True)
-    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
+
+def plot_comparison(measurements_csv: str, estimates_csv: str):
+    """
+    Plots actual measurements (z) vs. estimated measurements (ẑs_summary).
+    
+    Parameters:
+        measurements_csv (str): Path to the CSV file containing true measurements.
+        estimates_csv (str): Path to the CSV file containing estimated measurements.
+    """
+    # Load the measurement data (z values)
+    measurements_data = pd.read_csv(measurements_csv)
+    
+    # Load the estimated measurements (ẑs values)
+    estimates_data = pd.read_csv(estimates_csv)
+
+    # Extract time column (assume it's the first column)
+    times = measurements_data.iloc[:, 0]
+    
+    # Extract measurement values
+    zs = measurements_data.iloc[:, 1]  # Assuming only one measurement column
+    
+    # Extract estimated values (assume multiple estimators exist)
+    ẑs = estimates_data.iloc[:, 1:]  # All columns except time
+    
+    # Plot actual measurements (z)
+    plt.figure(figsize=(10, 6))
+    plt.plot(times, zs, label="True Measurements (z)", color='black', linewidth=2)
+
+    # Plot each estimator's estimated measurements (ẑ)
+    for col in ẑs.columns:
+        plt.plot(times, ẑs[col], label=f"Estimated {col}", linestyle='dashed')
+
+    # Add labels, legend, and grid
+    plt.xlabel('Time')
+    plt.ylabel('Values')
+    plt.title('True Measurements vs. Estimated Measurements')
+    plt.legend(title='Legend')
+    plt.grid(True)
+    plt.legend().set_visible(False)
 
     # Show the plot
     plt.show()
@@ -238,7 +279,7 @@ def plot_heatmap(models_summary, times, λs, title):
     plt.title(title)
     plt.show()
 
-def mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_posteriors_summary, pdvs_summary):
+def mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_posteriors_summary, pdvs_summary, residuals_summary, ẑs_summary):
     # Convert the list of zs (measurements) to a numpy array
     zs = np.array(zs)
     
@@ -251,20 +292,30 @@ def mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_poster
     # Convert the list of model probabilities to a numpy array
     cumulative_posteriors_summary = np.array(cumulative_posteriors_summary)
 
+    # Convert the list of residuals to a numpy array
+    residuals_summary = np.squeeze(np.array(residuals_summary))
+
+    # Convert the list of ẑs (estimated measurements) to a numpy array
+    ẑs_summary = np.squeeze(np.array(ẑs_summary))
+
     # Make csv ouputs
     return_csv(times, zs, title="./output/measurements.csv")
     return_csv(times, lambda_hats, title="./output/lambda_hats.csv")
     return_csv(times, cumulative_posteriors_summary, title="./output/cumulative_posteriors_summary.csv")
     return_csv(times, pdvs_summary, title="./output/pdvs_summary.csv")
+    return_csv(times, residuals_summary, title="./output/residuals_summary.csv")
+    return_csv(times, ẑs_summary, title="./output/estimated_measurements.csv")
 
     # Plot csv data
-    plot_csv_data("./output/measurements.csv")
+    # plot_csv_data("./output/measurements.csv")
+
+    plot_comparison("./output/measurements.csv", "./output/estimated_measurements.csv")
 
     # Plot the estimated variables over time
     plot_λ_hat(times, lambda_hats, true_λ)
 
-    # # Plot the heatmap for likelihoods (PDVs) over time
-    plot_heatmap(pdvs_summary, times, λs, title="Heatmap of Model Likelihood Over Time")
+    # Plot the heatmap for likelihoods (PDVs) over time
+    # plot_heatmap(pdvs_summary, times, λs, title="Heatmap of Model Likelihood Over Time")
 
-    # # Plot the heatmap for model cumulative posterior probabilities over time
-    plot_heatmap(cumulative_posteriors_summary, times, λs, title="Heatmap of Cumulative Posterior Probabilities Over Time")
+    # Plot the heatmap for model cumulative posterior probabilities over time
+    # plot_heatmap(cumulative_posteriors_summary, times, λs, title="Heatmap of Cumulative Posterior Probabilities Over Time")

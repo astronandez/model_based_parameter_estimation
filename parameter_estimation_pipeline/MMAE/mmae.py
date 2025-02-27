@@ -25,17 +25,19 @@ class MMAE:
 
     def update(self, u: ndarray, z: ndarray, dt: float) -> float:
         # Update each likelihood estimator
-        pdvs = [
+        results = [
             EstimatorLikelihood.update(u, z, dt) 
             for EstimatorLikelihood in self.EstimatorLikelihoods
         ]
+
+        pdvs, residuals, covariances, ẑs = map(list, zip(*results))
         
         # Update joint probabilities and get weighted estimate
         λ_hat, cumulative_posteriors = self.JointProbability.update(pdvs, self.λs)
 
         # self.manage_models(λ_hat, cumulative_posteriors)
 
-        return λ_hat, cumulative_posteriors, pdvs
+        return λ_hat, cumulative_posteriors, pdvs, residuals, covariances, ẑs
     
 
     def manage_models(self, λ_hat: np.ndarray, cumulative_posteriors: np.ndarray):
@@ -43,7 +45,7 @@ class MMAE:
         Adjust low-posterior models closer to estimated dynamics (λ_hat),
         while keeping model diversity to ensure robust interpolation.
         """
-        threshold = 0.0001  # Posterior probability threshold for poor performance
+        threshold = 0.01  # Posterior probability threshold for poor performance
 
         for i, posterior in enumerate(cumulative_posteriors):
             if posterior <= threshold:
@@ -68,7 +70,7 @@ class MMAE:
 
                 # Add small perturbations for exploration
                 perturbation_m = np.random.normal(0, 0.001)
-                perturbation_k = np.random.normal(0, 1.0)
+                perturbation_k = np.random.normal(0, 0.10)
                 perturbation_b = np.random.normal(0, 0.001)
 
                 self.λs[i][0] += perturbation_m

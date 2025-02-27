@@ -31,7 +31,7 @@ class Estimator:
         # Update the state estimate output from the update phase. this will be x̂(t-1) in next iteration
         self.x̂_ = x̂
         
-        return x̂, P, r, A
+        return x̂, P, r, A, ẑ
     
 
 ########### Testbench ###########

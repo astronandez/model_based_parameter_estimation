@@ -21,9 +21,9 @@ class MMAESimulatorRealData:
         # u = self.input_signal[t, :].reshape(-1, 1)
         u = np.array([0.0]).reshape(-1, 1)
 
-        λ_hat, cumulative_posteriors, pdvs = self.MMAE.update(u, z, dt)
+        λ_hat, cumulative_posteriors, pdvs, residuals, covariances, ẑs = self.MMAE.update(u, z, dt)
 
-        return λ_hat, cumulative_posteriors, pdvs
+        return λ_hat, cumulative_posteriors, pdvs, residuals, covariances, ẑs
 
 
 if __name__ == "__main__":
@@ -44,34 +44,42 @@ if __name__ == "__main__":
     lambda_hats = []
     cumulative_posteriors_summary = []
     pdvs_summary = []
+    residuals_summary = []
+    covariances_summary = []
+    ẑs_summary = []
 
-    data = np.loadtxt("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation/Data/m95_0_k80_80.csv", delimiter=",", usecols=6, skiprows=1)  # skiprows=1 if there is a header
-    dts = np.loadtxt("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation//Data/m95_0_k80_80.csv", delimiter=",", usecols=1, skiprows=1)  # skiprows=1 if there is a header
+    data = np.loadtxt("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation/Data/m95_0_k80_80_orig.csv", delimiter=",", usecols=6, skiprows=1)  # skiprows=1 if there is a header
+    # dts = np.loadtxt("/Users/tilboon/Documents/GitHub/model_based_parameter_estimation//Data/m95_0_k80_80.csv", delimiter=",", usecols=1, skiprows=1)  # skiprows=1 if there is a header
 
     # Init Initial state
     time_track = 0.0
     times.append(time_track)
     z = np.array([[data[0]]], dtype='float64')
     zs.append(z)
-    λ_hat, cumulative_posteriors, pdvs = MMAESimulator.update(0, z, dt)
+    λ_hat, cumulative_posteriors, pdvs, residuals, covariances, ẑs = MMAESimulator.update(0, z, dt)
     lambda_hats.append(λ_hat)
     cumulative_posteriors_summary.append(cumulative_posteriors)
     pdvs_summary.append(pdvs)
+    residuals_summary.append(residuals)
+    covariances_summary.append(covariances)
+    ẑs_summary.append(ẑs)
 
     # Main simulation loop
     for step_counter in range(1, max_time):
-        dt = dts[step_counter]
         time_track += dt
         times.append(time_track)
         z = np.array([[data[step_counter]]], dtype='float64')
         zs.append(z)
-        λ_hat, cumulative_posteriors, pdvs = MMAESimulator.update(step_counter, z, dt)
+        λ_hat, cumulative_posteriors, pdvs, residuals, covariances, ẑs = MMAESimulator.update(step_counter, z, dt)
         lambda_hats.append(λ_hat)
         cumulative_posteriors_summary.append(cumulative_posteriors)
         pdvs_summary.append(pdvs)
+        residuals_summary.append(residuals)
+        covariances_summary.append(covariances)
+        ẑs_summary.append(ẑs)
         # print(λ_hat)
 
     # Convert zs to a 2D array after the loop
     zs = np.array(zs).reshape(len(zs), -1)
 
-    mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_posteriors_summary, pdvs_summary)
+    mmae_simulator_plots(times, true_λ, λs, zs, lambda_hats, cumulative_posteriors_summary, pdvs_summary, residuals_summary, ẑs_summary)
