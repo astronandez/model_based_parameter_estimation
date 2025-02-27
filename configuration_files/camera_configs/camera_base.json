@@ -1,7 +1,7 @@
 {
     "frame_w": 640,
     "frame_h": 360,
-    "input": "./videos/originals/truck1_empty_left.mov",
+    "input": "./videos/originals/truck_two_left.mov",
     "output_path": "./videos/",
     "write": true
 }

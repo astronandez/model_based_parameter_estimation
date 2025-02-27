@@ -191,6 +191,22 @@ def plotFitment(t, y, y_fit, env_pos, env_neg, labels, store=True):
         with open(file_name, "wb") as file:
             pickle.dump(plt.gcf(), file)   
 
+def plotFitment2(t, y, t_fit, y_fit, env_pos, env_neg, labels, store=True):
+    file_name, title, xlabel, ylabel = labels
+    plt.figure(figsize=(10, 6))
+    plt.scatter(t, y, label='Noisy Data (y)', color='blue', s=10)
+    plt.plot(t_fit, y_fit, label='Fitted Curve (y)', color='red', linewidth=2)
+    # plt.plot(t_fit, env_pos, label=f"Envelope (+)", color="green", linewidth=2)
+    # plt.plot(t_fit, env_neg, label=f"Envelope (-)", color="green", linewidth=2)
+    plt.title(title)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.legend()
+    plt.grid(True)
+    if store:    
+        with open(file_name, "wb") as file:
+            pickle.dump(plt.gcf(), file)   
+
 if __name__ == "__main__":
     def loadCompleteGraphs(model_id):
         display(f"./graphs/{model_id}_x_measurements.fig")

@@ -145,10 +145,11 @@ class Harness:
             # Shape our measurements depending on the structure of our system model {A, B, H, Q, R}
             zs, us = self.shapeMeasurements(cxs, cys)
             
+            # If true, we run the MMAE algorithm on our measurement data
             self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
-    harness_config_path = "./configuration_files/harness_configs/harness_truck1_dark.json" 
+    harness_config_path = "./configuration_files/harness_configs/harness_m095_0_k80_80.json" 
     harness = Harness(harness_config_path)
     harness.fullTest()
     plt.show()   

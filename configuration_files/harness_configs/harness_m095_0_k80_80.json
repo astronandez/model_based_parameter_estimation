@@ -3,8 +3,19 @@
     "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_m095_0_k80_80.json",
     "camera_config_path": "./configuration_files/camera_configs/camera_m095_0_k80_80.json",
     "detector_config_path": "./configuration_files/detector_configs/detector_spring.json",
-    "from_recording": false,
+
+    "frame_w": 640,
+    "frame_h": 480,
+    "input": "./videos/originals/m095_0_k80_80.mp4",
+    "write": true,
+
+    "detector": "./computer_vision/cv_models/sticky_spring_detector.pt",
+    "min_dist": 100,
+    "max_age": 2,
+
+    "from_recording": true,
     "store_metrics": true,
     "store_graphs": true,
-    "store_fit": false
+    "store_fit": false,
+    "store_eval": false
 }
