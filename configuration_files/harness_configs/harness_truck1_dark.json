@@ -1,0 +1,22 @@
+{
+    "case_id": "truck1_empty_left",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_sport_rb.json",
+    "camera_config_path": "./configuration_files/camera_configs/camera_base.json",
+    "detector_config_path": "./configuration_files/detector_configs/detector_base.json",
+
+    "frame_w": 640,
+    "frame_h": 360,
+    "input": "./videos/originals/truck1_empty_left.mov",
+    "write": true,
+
+
+    "detector": "./computer_vision/cv_models/sticky_detector_old.pt",
+    "min_dist": 100,
+    "max_age": 3,
+
+    "from_recording": true,
+    "store_metrics": false,
+    "store_graphs": false,
+    "store_fit": false,
+    "store_eval": false
+}

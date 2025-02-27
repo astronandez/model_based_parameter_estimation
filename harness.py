@@ -1,7 +1,7 @@
 import os
 import sys
 
-from generator import MeasurementGenerator
+from measurement_generator import MeasurementGenerator
 from fitter import defaultFitment
 from evaluation import Evaluation
 from computer_vision.tools.common import *
@@ -34,12 +34,36 @@ def getParams(prompt, default_values=None):
             print(f"Invalid input: {e}")
             return getParams(prompt, default_values)  # Retry on error     
 
+def loadHarnessConfig(config_path):
+    """Loads a JSON configuration file and applies overrides if it's the top-level config."""
+    with open(config_path, "r") as f:
+        config = json.load(f)
+
+    # If this is the top-level config, update lower-level configs dynamically
+    if "camera_config_path" in config and "detector_config_path" in config:
+        for key in ["camera_config_path", "detector_config_path"]:
+            lower_config_path = config[key]
+
+            with open(lower_config_path, "r") as f:
+                lower_config = json.load(f)
+
+            # Override values dynamically based on the top-level config
+            for k in lower_config.keys():
+                if k in config:
+                    lower_config[k] = config[k]
+
+            # Save the updated lower-level config file
+            with open(lower_config_path, "w") as f:
+                json.dump(lower_config, f, indent=4)
+
+    return config  # Return the loaded (and possibly modified) config
+
 class Harness:
     generator: MeasurementGenerator
     evaluation: Evaluation
     
     def __init__(self, harness_config_path):
-        harness_config = loadConfig(harness_config_path)
+        harness_config = loadHarnessConfig(harness_config_path)
         evaluation_config = loadConfig(harness_config["evaluation_config_path"])
         camera_config = loadConfig(harness_config["camera_config_path"])
         detector_config = loadConfig(harness_config["detector_config_path"])
@@ -53,6 +77,7 @@ class Harness:
         self.store_metrics = harness_config['store_metrics']
         self.store_graphs = harness_config['store_graphs']
         self.store_fit = harness_config['store_fit']
+        self.store_eval = harness_config['store_eval']
 
         self.evaluation_config = evaluation_config
         self.camera_config = camera_config
@@ -60,10 +85,10 @@ class Harness:
         
     def sourceMeasurements(self):
         if self.from_recording:
-            self.generator.defaultMeasurementGenerationProcess(self.case_id)
-            
-        file_path = getFilePath()
-        measurements = self.generator.dataloader.load(file_path)
+            measurements = self.generator.defaultMeasurementGenerationProcess()
+        else:
+            file_path = getFilePath()
+            measurements = self.generator.dataloader.load(file_path)
         return measurements
     
     def storeMetrics(self, cxs, cys, widths, heights):
@@ -95,27 +120,35 @@ class Harness:
             us = zeros_like(zs)
             
         return zs, us
+    
+    def storeEvaluation(self, ts, dts, zs, us):
+        if self.store_eval:
+            self.evaluation.defaultEvaluation(ts, dts, zs, us, store=self.store_graphs)
+        else:
+            pass
      
     def fullTest(self):    
         # If true, we're creating a new dataset from a video file, else we're reading an existing dataset from a file
-        ts, dts, cxs, cys, widths, heights = self.sourceMeasurements()
+        measurements = self.sourceMeasurements()
         
-        # If true, we store the metrics from the dataset in a .txt file, else we display our metrics to terminal only    
-        self.storeMetrics(cxs, cys, widths, heights)
-        
-        # If true, create graphs for the timeseries and plot their distributions
-        self.storeGraphs(ts, cxs, cys, widths, heights)
+        for measurement in zip(*measurements):
+            ts, dts, cxs, cys, widths, heights = measurement
+            # If true, we store the metrics from the dataset in a .txt file, else we display our metrics to terminal only    
+            self.storeMetrics(cxs, cys, widths, heights)
+            
+            # If true, create graphs for the timeseries and plot their distributions
+            self.storeGraphs(ts, cxs, cys, widths, heights)
 
-        # If true, we want to fit a synthetic function to the actual dataset, else pass
-        self.storeFit(ts, cys)
-        
-        # Shape our measurements depending on the structure of our system model {A, B, H, Q, R}
-        zs, us = self.shapeMeasurements(cxs, cys)
-        
-        self.evaluation.defaultEvaluation(ts, dts, zs, us, store=self.store_graphs) 
+            # If true, we want to fit a synthetic function to the actual dataset, else pass
+            self.storeFit(ts, cys)
+            
+            # Shape our measurements depending on the structure of our system model {A, B, H, Q, R}
+            zs, us = self.shapeMeasurements(cxs, cys)
+            
+            self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
-    harness_config_path = "./configuration_files/harness_configs/harness_m095_0_k80_80.json" 
+    harness_config_path = "./configuration_files/harness_configs/harness_truck1_dark.json" 
     harness = Harness(harness_config_path)
     harness.fullTest()
     plt.show()   

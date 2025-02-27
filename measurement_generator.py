@@ -25,6 +25,7 @@ class MeasurementGenerator(Camera):
         Args:
             frame (cv.Mat): the next frame from input feed
         """
+        frame = cv.resize(frame, (self.detector.frame_w, self.detector.frame_h))
         detections = self.detector.measurement(frame)
         self.watch.sync()
         if detections:
@@ -120,7 +121,7 @@ if __name__ == "__main__":
     # case_id = "noise_test"
     # detector_config = loadConfig('./configuration_files/detector_configs/detector_spring.json')
     
-    case_id = "sport"
+    # case_id = "sport"
     case_id = "sport_load"
     detector_config = loadConfig('./configuration_files/detector_configs/detector_vehicle.json')
     

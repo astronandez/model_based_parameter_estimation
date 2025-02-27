@@ -1,0 +1,61 @@
+@startuml pipeline
+left to right direction
+skinparam BackgroundColor transparent
+skinparam componentStyle rectangle
+' skinparam linetype ortho
+
+title pipeline block diagram
+component "output" as out #lime
+
+component "MeasurementGenerator" as gen #red {
+    portout "ts" as times
+    portout "dts" as deltas
+    portout "cxs" as cxs
+    portout "cys" as cys
+    portout "widths" as widths
+    portout "heights" as heights
+} 
+
+component "Evaluation" as eval {
+    ' component "init" as initeval
+    component "u = 0" as uzero
+
+    component "run" as run {
+        portin "zs" as zs
+        portin "us" as us
+        portin "dts" as dts
+        portout "run_λ_hats" as run_λ_hat
+        ' portout "run_posts" as run_post
+        ' portout "run_pdvs'" as run_pdvs
+
+        component "MMAE" as mmae #LightBlue{
+            portin "dt" as dt
+            portin "u" as uin
+            portin "z" as zin
+
+            portout "λ_hat" as plambda
+            ' portout "cumulative_posteriors" as post
+            ' portout "pdvs" as pdvs
+        }
+
+        zs --> zin
+        us --> uin
+        dts --> dt
+        plambda ---> run_λ_hat
+        ' post --> run_post
+        ' pdvs --> run_pdvs
+    }
+
+    eval -u[hidden]- mmae
+    uzero --> us
+
+}
+
+cys ---> zs
+deltas ---> dts
+
+run_λ_hat ---> out
+' run_post ---> out
+' run_pdvs ---> out
+
+@enduml
