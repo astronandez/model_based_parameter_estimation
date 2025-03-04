@@ -95,7 +95,12 @@ class Harness:
         if self.store_metrics:
             terminal = sys.stdout
             getDataMetrics(self.case_id, cxs, cys, widths, heights)
-            sys.stdout = open(f"./output/{self.case_id}_metrics.txt", 'w')
+            
+            i = 0
+            while os.path.exists(f"./output/{self.case_id}_metrics_{i}.txt"):
+                i += 1
+            
+            sys.stdout = open(f"./output/{self.case_id}_metrics_{i}.txt", 'w')
             getDataMetrics(self.case_id, cxs, cys, widths, heights)
             sys.stdout = terminal
         else:
@@ -130,7 +135,6 @@ class Harness:
     def fullTest(self):    
         # If true, we're creating a new dataset from a video file, else we're reading an existing dataset from a file
         measurements = self.sourceMeasurements()
-        
         for measurement in zip(*measurements):
             ts, dts, cxs, cys, widths, heights = measurement
             # If true, we store the metrics from the dataset in a .txt file, else we display our metrics to terminal only    
@@ -149,7 +153,9 @@ class Harness:
             self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
-    harness_config_path = "./configuration_files/harness_configs/harness_m095_0_k80_80.json" 
+    # harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_fourpass.json" 
+    # harness_config_path = "./configuration_files/harness_configs/suv/harness_suv_threepass.json" 
+    harness_config_path = "./configuration_files/harness_configs/truck/harness_truck_nopass.json" 
     harness = Harness(harness_config_path)
     harness.fullTest()
     plt.show()   

@@ -1,0 +1,22 @@
+{
+    "case_id": "sport_nopass",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_sport_rb.json",
+    "camera_config_path": "./configuration_files/camera_configs/camera_base.json",
+    "detector_config_path": "./configuration_files/detector_configs/detector_base.json",
+
+    "frame_w": 640,
+    "frame_h": 360,
+    "input": "./videos/vehicles/sport/sport_120fps_4k_load_1.mov",
+    "write": true,
+
+
+    "detector": "./computer_vision/cv_models/sticky_detector.pt",
+    "min_dist": 50,
+    "max_age": 2,
+
+    "from_recording": true,
+    "store_metrics": false,
+    "store_graphs": false,
+    "store_fit": false,
+    "store_eval": false
+}
