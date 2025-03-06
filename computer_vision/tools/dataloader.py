@@ -34,3 +34,23 @@ class Dataloader:
         heights = array([row[5] for row in data])
         
         return times, dts, cxs, cys, widths, heights
+    
+if __name__ == "__main__":
+    from grapher import plotTimeSeries, plt
+    from numpy import mean
+
+    # case_id = "sport_rb"
+    # data_file = f"./data/sport/nopass/{case_id}.csv"
+    case_id = "sport_rb"
+    data_file = f"./output/{case_id}.csv"
+    dataloader = Dataloader("./output/")
+    labels = [f"./graphs/{case_id}_nopass_y_timeseries.fig",
+                f"Timeseries data of y measurements",
+                "Time (s)",
+                "Position (px)"]
+    ts, dts, cxs, cys, widths, heights = dataloader.load(data_file)
+
+    plotTimeSeries((ts - ts[0]), (cys - mean(cys)), labels)
+
+    plt.show()
+    

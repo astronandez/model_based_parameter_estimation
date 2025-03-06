@@ -1,7 +1,7 @@
 {
     "frame_w": 640,
     "frame_h": 360,
-    "input": "./videos/vehicles/truck/day2/truck_120fps_4k_load_1.mov",
+    "input": "./videos/previous/sport_empty_right.mp4",
     "output_path": "./videos/",
     "write": true
 }

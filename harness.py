@@ -153,9 +153,9 @@ class Harness:
             self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
-    # harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_fourpass.json" 
+    harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_nopass.json" 
     # harness_config_path = "./configuration_files/harness_configs/suv/harness_suv_threepass.json" 
-    harness_config_path = "./configuration_files/harness_configs/truck/harness_truck_nopass.json" 
+    # harness_config_path = "./configuration_files/harness_configs/truck/harness_truck_nopass.json" 
     harness = Harness(harness_config_path)
     harness.fullTest()
     plt.show()   

@@ -1,0 +1,19 @@
+Nissan 2013: 
+    Height: 1.32 m
+    Curb weight: 1484.154 kg (This assumes a full tank)
+
+Mazda 2015: 
+    Height: 1.66878 m
+    Curb weight: 1492.772 kg (This assumes a full tank)
+
+Toyota: 
+    Height: 1.79324 m
+    Curb weight: 1805.298 kg (This assumes a full tank)
+
+
+zid = 140 lbs
+Til = 188 lbs
+J = 238 lbs
+Dav = 256 lbs
+Woo = 161 lbs
+Mar = 148 lbs
