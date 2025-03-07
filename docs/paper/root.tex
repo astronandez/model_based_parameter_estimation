@@ -4,7 +4,7 @@
 
 \documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out if you need a4paper
 
-% \documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
+%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
 
 \IEEEoverridecommandlockouts                              % This command is only needed if 
                                                           % you want to use the \thanks command
@@ -29,26 +29,27 @@
 %\usepackage{times} % assumes new font selection scheme installed
 %\usepackage{amsmath} % assumes amsmath package installed
 %\usepackage{amssymb}  % assumes amsmath package installed
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{gensymb}
 
 \title{\LARGE \bf
-Preparation of Papers for IEEE Sponsored Conferences \& Symposia*
+Computer Vision Informed Parameter Estimation
 }
 
-
-\author{Marc Hernandez$^{1}$ and Tilboon Elberier$^{2}$% <-this % stops a space
-\thanks{*This work was not supported by any organization}% <-this % stops a space
-\thanks{$^{1}$Marc Hernandez is a Phd Student in Electrical and Computer Engineering, Mathematics and Computer Science,
-        University of Twente, 7500 AE Enschede, The Netherlands
-        {\tt\small albert.author@papercept.net}}%
-\thanks{$^{2}$Bernard D. Researcheris with the Department of Electrical Engineering, Wright State University,
-        Dayton, OH 45435, USA
-        {\tt\small b.d.researcher@ieee.org}}%
+\author{
+    Marc Hernandez$^{\dagger,1}$, Brair (Tilboon) Elberier$^{\dagger,1}$, and Ankur Mehta$^1$
+    \thanks{$^{\dagger}$Co-primary authors with equal contribution.}
+    \thanks{$^1$Laboratory for Embedded Machines and Ubiquitous Robots (LEMUR), Department of Electrical and Computer Engineering, University of California, Los Angeles, CA, 90095
+    Email: \{\fontfamily{qcr}\selectfont{ \large marchernandez, tilboon, mehtank\}@ucla.edu}}
+    \thanks{}
 }
 
 
 \begin{document}
-
-
 
 \maketitle
 \thispagestyle{empty}
@@ -57,122 +58,312 @@ Preparation of Papers for IEEE Sponsored Conferences \& Symposia*
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-
-This electronic document is a live template. The various components of your paper [title, text, heads, etc.] are already defined on the style sheet, as illustrated by the portions given in this document.
-
+We propose a novel, computer vision (CV) informed parameter estimation pipeline, capable of generating parameter estimates for a prescribed linear dynamic system of interest, by (1) collecting a time-series of measurements via a state-of-the-art (SOTA) object detector, (2) quantitatively analyzing the physical behavior of an object throughout a time-series dataset, (3) hypothesizing the most likely parameter set based on our analysis of the system's motion profile. This analysis is then unified with the object detector's qualitative video analysis to refine an identified system's classification. We demonstrate these capabilities by recreating a common roadway scenario where a vehicle is recorded traversing a speed bump parallel to the camera lens. By observing the vehicle's reaction to the speed bump, we may collect measurements closely resembling the actual displacement of its suspension system. These measurements along with the prescribed Simple Harmonic Motion (SHM) model, enable the Multiple-Model Adaptive Estimation (MMAE) algorithm to estimate the most likely set of parameters that describes the real observed system. Using these estimations, we enhance the detector's classification of the vehicles by introducing a subcategory of \textit{perceived mass} that may be used by robotic, artificial intelligence (AI), and machine learning (ML) systems to enrich their understanding of an object's physical properties. Enabling said systems to make new inferences about the object's potential interactions with the environment. From the performed experiments, we observe an MAE of XX.XX\%,(Insert results here relating to our evaluation metrics) Github: \url{https://tinyurl.com/CVInformedParameterEstimation}
 \end{abstract}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
+As robotics, artificial intelligence (AI), and machine learning (ML) continue to advance, new systems will be expected to handle increasingly complex tasks, that require a fundamental understanding of the qualitative and quantitative information contained in the observed environment.  Great strides have been made in the fields of robotics modeling, computer vision (CV), and natural language processing (NLP) by utilizing visual semantics, like \textit{color, shape,} and \textit{size} to classify, segment, and contextually analyze important content within time-series data to provide their systems with critical information enabling higher level functionality. However, when observing a system in motion, we may be capable of learning additional information about the system by also considering its spatiotemporal properties during analysis []. 
 
-This template provides authors with most of the formatting specifications needed for preparing electronic versions of their papers. All standard paper components have been specified for three reasons: (1) ease of use when formatting individual papers, (2) automatic compliance to electronic requirements that facilitate the concurrent or later production of electronic products, and (3) conformity of style throughout a conference proceedings. Margins, column widths, line spacing, and type styles are built-in; examples of the type styles are provided throughout this document and are identified in italic type, within parentheses, following the example. Some components, such as multi-leveled equations, graphics, and tables are not prescribed, although the various table text styles are provided. The formatter will need to create these components, incorporating the applicable criteria that follow.
+By observing a system's physical behavior over a sequence of time-series data, we can compare the behavior of probable system candidates, modeled after the ground truth system, against the ground truth data. Provided that the data accurately reflects the observed system's real-world behavior, we can leverage the physics-based information relayed by the systems motion profile to make estimations of intrinsic system parameters like \textit{mass, stiffness} and \textit{friction coefficient}. This quantitative analysis enhances understanding of the observed system and may allow external systems to refine their qualitative data obtained via semantic analysis. Traditionally, the methods required to obtain accurate estimations of intrinsic parameters, require specialized sensors that often necessitate considerable effort to scale or are difficult to incorporate into everyday scenarios. 
 
-\section{PROCEDURE FOR PAPER SUBMISSION}
+Building on previous work, we analyze vehicles traversing a speed bump, with and without passengers, recorded by a simple monocular camera setup. Specifically, we observe the motion of its suspension system in response to an input with various loads. From these observations, we generate a time-series dataset of measurements that closely reflects the displacement of the suspension system in an effort to estimate the vehicle's \textit{mass ($m$), spring constant ($k$)} and \textit{damping coefficient ($b$)} based on the given Simple Harmonic Motion (SHM) model. We leverage this qualitative analysis to refine the class assigned to the vehicle by introducing the subclassification of \textit{perceived load}, effectively fusing the qualitative and quantitative analysis.
 
-\subsection{Selecting a Template (Heading 2)}
+In this study, we propose a CV-informed parameter estimation pipeline, that combines the strengths of semantic and physics-based analysis to enhance our understanding of observed linear dynamic systems in videos. We accomplish this by using a state-of-the-art (SOTA) object detection tool, to classify the type of system observed, in groups like \textit{Truck, SUV, Sports}, and to collect a history of time-series measurements of the system in motion. These measurements are then provided to the Multiple-Model Adaptive Estimation (MMAE) algorithm [4], to learn the most probable set of intrinsic parameters, based on its temporal properties, that describes the observed real system. From these newly learned system parameters, we develop a deeper understanding of the real system, that may enable external systems to generate new inferences that may have been indiscernible with semantics alone.
 
-First, confirm that you have the correct template for your paper size. This template has been tailored for output on the US-letter paper size. 
-It may be used for A4 paper size if the paper size setting is suitably modified.
-
-\subsection{Maintaining the Integrity of the Specifications}
-
-The template is used to format your paper and style the text. All margins, column widths, line spaces, and text fonts are prescribed; please do not alter them. You may note peculiarities. For example, the head margin in this template measures proportionately more than is customary. This measurement and others are deliberate, using specifications that anticipate your paper as one part of the entire proceedings, and not as an independent document. Please do not revise any of the current designations
-
-\section{MATH}
-
-Before you begin to format your paper, first write and save the content as a separate text file. Keep your text and graphic files separate until after the text has been formatted and styled. Do not use hard tabs, and limit use of hard returns to only one return at the end of a paragraph. Do not add any kind of pagination anywhere in the paper. Do not number text heads-the template will do that for you.
-
-Finally, complete content and organizational editing before formatting. Please take note of the following items when proofreading spelling and grammar:
-
-\subsection{Abbreviations and Acronyms} Define abbreviations and acronyms the first time they are used in the text, even after they have been defined in the abstract. Abbreviations such as IEEE, SI, MKS, CGS, sc, dc, and rms do not have to be defined. Do not use abbreviations in the title or heads unless they are unavoidable.
-
-\subsection{Units}
-
+The contributions of this paper are summarized as follows:
 \begin{itemize}
-
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as 3.5-inch disk drive.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: Wb/m2 or webers per square meter, not webers/m2.  Spell out units when they appear in text: . . . a few henries, not . . . a few H.
-\item Use a zero before decimal points: 0.25, not .25. Use cm3, not cc. (bullet list)
-
+    \item A CV Informed Parameter Estimation pipeline \textit{(fig. 1)}, capable of ingesting and evaluating general linear dynamic systems subject to AWGN.
+    \item A physics-based method of estimating a linear dynamic system's intrinsic parameters from observer data.
+    \item A fused classification approach that leverages qualitative and quantitative data analysis to refine broad classification categories.
 \end{itemize}
 
+\begin{figure*}[h]
+    \centering
+    \includegraphics[width=\textwidth]{pipeline_diagram.png}
+    \caption{CV Informed Parameter Estimation Pipeline}
+    \label{figure_1}
+\end{figure*}
 
-\subsection{Equations}
 
-The equations are an exception to the prescribed specifications of this template. You will need to determine whether or not your equation should be typed using either the Times New Roman or the Symbol font (please no other font). To create multileveled equations, it may be necessary to treat the equation as a graphic and insert it into the text after your paper is styled. Number equations consecutively. Equation numbers, within parentheses, are to position flush right, as in (1), using a right tab stop. To make your equations more compact, you may use the solidus ( / ), the exp function, or appropriate exponents. Italicize Roman symbols for quantities and variables, but not Greek symbols. Use a long dash rather than a hyphen for a minus sign. Punctuate equations with commas or periods when they are part of a sentence, as in
+\section{RELATED WORK}
+(In progress) Existing works like [1], utilize CV to identify sidewall markings, record contact time and other mathematical relationships to derive an estimation of \textit{mass} for vehicles. However, the formulation of these methods, while accurate, are often limited in application scope and do not generalize to other parameters of interest.
+Other works that generate affordances
+
+\section{METHODOLOGY}
+In the following section, we will closely examine the core components of our aforementioned pipeline, highlighting their requirements and influence on the pipeline's outcomes. 
+
+\subsection{Object Detector}
+Object detection is a well-studied and critical task in CV, enabling the automatic and accurate recognition of relevant visual features. In this study, employ a SOTA YOLOv11n [5] object detection model, pretrained on the COCO dataset, optimized on a custom dataset \url{https://tinyurl.com/CVIPEDataset}, and deployed using publicly available software packages [10] to localize and classify objects and their key-points captured in video frame data. The data augmentation strategies used during training were $\pm 10\%$ exposure and $\pm 10 \degree$ of horizontal and vertical image sheer. The resulting model achieved a mean Average Precision (mAP) over multiple intersection over union (IoU) of mAP50-95 $= 0.807$. In tandem with the defined model classes of \textit{Truck, SUV} and \textit{Sport} vehicles, we've associated each class with a statistical average mass $m$ in kg based on the entries of a large vehicle data found \url{https://carsheet.io/} to act the initial prediction for the remaining pipeline components.
+
+\subsection{Kalman Filter Derivation}
+The Kalman filter serves as the fundamental building block of the Multiple-Model Adaptive Estimation (MMAE) algorithm. The plant is modeled as a linear system subject to additive white Gaussian noise (AWGN). Each system within the parameter estimation pipeline is governed by a parameter vector $\lambda^k$, which is drawn from a predefined set of parameters derived from the CV identification process:
+
+$$\Lambda = \{\lambda^1, \lambda^2, \dots, \lambda^k\}$$
+These parameters define the dynamics of the system, where each $\lambda^k$ corresponds to a unique model hypothesis within the MMAE framework. To estimate the true system parameters, a bank of $k$ Kalman filters is maintained, each corresponding to a specific $\lambda^k$. The system associated with each estimator $k$ is governed by the following set of matrices:
+
+$$\mathbf{S}^{k} = \{\mathbf{\Phi}(\lambda^{k}), \mathbf{B}(\lambda^{k}), \mathbf{H}^{k}, \mathbf{Q}^{k}, \mathbf{R}^{k}\}$$
+These matrices define the following state-space equations associated with a particular hypothesized system (denoted by $k$) that form the basis of the Kalman filter.
 
 $$
-\alpha + \beta = \chi \eqno{(1)}
+\mathbf{x}_{t_i}^{k} = \mathbf{\Phi}(\lambda^{k}) \mathbf{x}_{t_{i-1}}^{k} + \mathbf{B}(\lambda^{k}) \mathbf{u}_{t_{i-1}} + \mathbf{w}_{t_{i-1}}^{k} \eqno{(1)}
+$$
+$$
+\mathbf{z}_{t_i}^{k} = \mathbf{H}^{k} \mathbf{x}_{t_i}^{k} + \mathbf{v}_{t_i}^{k} \eqno{(2)}
+$$
+The variables in these equations are defined as follows:
+\vspace{0.25cm}
+\begin{description}
+    \item[$\mathbf{x}^{k}$] Kalman filter model state vector
+    \item[$\mathbf{\Phi}(\lambda^{k})$] Kalman filter model state transition matrix
+    \item[$\mathbf{B}(\lambda^{k})$] Kalman filter model control input matrix
+    \item[$\mathbf{u}$] System input vector
+    \item[$\mathbf{w}^{k}$] Kalman filter process noise input
+    \item[$\mathbf{z}^{k}$] Kalman filter model measurement vector
+    \item[$\mathbf{H}^{k}$] Kalman filter model output matrix
+    \item[$\mathbf{v}^{k}$] Kalman filter measurement noise input
+\end{description}
+\vspace{0.25cm} 
+It is important to note that the process noise $w^k$ and the measurement noise $v^k$ are independently drawn from zero mean, white Gaussian normal distributions and covariance defined by the matrices $Q$ and $R$, respectively.
+
+$$\mathbf{w}_{t_{i-1}}^{k} \sim \mathcal{N}(0, \mathbf{Q}^k), \quad \mathbf{v}_{t_i}^{k} \sim \mathcal{N}(0, \mathbf{R}^k)$$
+The derivation of these equations and the founding theory behind the Kalman filter are widely explored in these sources [4, 6, 7]. The following is a summary of the derivation from [4].
+
+Using the model defined above, the Kalman filter defines the time propagation and measurement update equations for both the state estimate and its covariance matrix. The state estimate propagation equation is given by:
+$$
+\mathbf{\hat{x}}^{k}(t_i^-) = \mathbf{\Phi}(\lambda^{k}) \mathbf{\hat{x}}^{k}(t_{i-1}^+) + \mathbf{B}(\lambda^{k}) \mathbf{u}(t_{i-1}) \eqno{(3)}
+$$
+$$
+\mathbf{\hat{z}}^{k}(t_i^-) = \mathbf{H}^k \mathbf{\hat{x}}^{k}(t_i^-) \eqno{(4)}
+$$
+The variables in these equations are defined as follows:
+\vspace{0.25cm}
+\begin{description}
+    \item[$(t_i^-)$] time before measurement update at $i^{th}$ sample
+    \item[$(t_{i-1}^+)$] time after measurement update at $(i-1)$ sample
+    \item[$\mathbf{\hat{x}}^{k}$] Kalman filter state estimate vector
+    \item[$\mathbf{\hat{z}}^{k}(t_i^-)$] Kalman filter measurement vector estimate before available
+\end{description}
+\vspace{0.25cm}
+State estimate covariance matrix propagation equation:
+$$
+\mathbf{P}^k(t_i^-) = \mathbf{\Phi}(\lambda^{k}) \mathbf{P}^k(t_{i-1}^+) \mathbf{\Phi}(\lambda^{k})^\top + \mathbf{G}^k \mathbf{Q}^k (\mathbf{G}^k)^\top \eqno{(5)}
+$$
+Each Kalman filter updates the state estimate using:
+$$
+\hat{\mathbf{x}}^k(t_i^+) = \hat{\mathbf{x}}^k(t_i^-) + \mathbf{K}^k(t_i) \mathbf{r}^k(t_i) \eqno{(6)}
+$$
+and the Kalman filter gain is defined as:
+$$
+\mathbf{K}^k(t_i) = \mathbf{P}^k(t_i) (\mathbf{H}^k)^\top \mathbf{A}^k(t_i)^{-1} \eqno{(7)}
+$$
+The residual covariance matrix $A^k$, computed by the Kalman filter, is given by:
+$$
+\mathbf{A}^k(t_i) = \mathbf{H}^k \mathbf{P}^k(t_i^-) (\mathbf{H}^k)^\top + \mathbf{R}^k \eqno{(8)}
+$$
+The residual vector (innovation) $\mathbf{r}^k$ from (6) representing the difference between the actual measurement (z) and Kalman filter predicted measurement, per model, is calculated:
+$$
+\mathbf{r}^k(t_i) = \mathbf{z}(t_i) - \mathbf{H}^k \hat{\mathbf{x}}^k(t_i^-) \eqno{(9)}
+$$
+Finally, the Kalman filter state estimate covariance matrix is updated through the following equation:
+$$
+\mathbf{P}^k(t_i^+) = \mathbf{P}^k(t_i^-) - \mathbf{K}^k(t_i) \mathbf{H}^k \mathbf{P}^k(t_i^-) \eqno{(10)}
 $$
 
-Note that the equation is centered using a center tab stop. Be sure that the symbols in your equation have been defined before or immediately following the equation. Use (1), not Eq. (1) or equation (1), except at the beginning of a sentence: Equation (1) is . . .
+\subsection{Simple Harmonic Motion Model Derivation}
+To use Kalman filtering for the estimation of dynamic properties, a physics-based model of the system in question must first be developed.
 
-\subsection{Some Common Mistakes}
-\begin{itemize}
+The objective of this work is to be able to identify attributes or affordances of vehicles within a scene using video footage, specifically through the analysis of temporal features of the object rather than semantics alone. The natural model for a car as it evolves over time is a simple harmonic motion (SHM) model.
 
+A damped simple harmonic oscillator follows the following second-order differential equation [8]:
 
-\item The word data is plural, not singular.
-\item The subscript for the permeability of vacuum ?0, and other common scientific constants, is zero with subscript formatting, not a lowercase letter o.
-\item In American English, commas, semi-/colons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an inset, not an insert. The word alternatively is preferred to the word alternately (unless you really mean something that alternates).
-\item Do not use the word essentially to mean approximately or effectively.
-\item In your paper title, if the words that uses can accurately replace the word using, capitalize the u; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones affect and effect, complement and compliment, discreet and discrete, principal and principle.
-\item Do not confuse imply and infer.
-\item The prefix non is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the et in the Latin abbreviation et al..
-\item The abbreviation i.e. means that is, and the abbreviation e.g. means for example.
+$$m \ddot{x} + b \dot{x} + k x = u \eqno{(11)}$$
+where:
+\vspace{0.25cm}
+\begin{description}
+    \item[$m$] is the mass of the object
+    \item[$b$] is the dampening coefficient of the spring
+    \item[$k$] is the spring constant
+    \item[$x$] is the displacement
+    \item[$\dot{x}$] is the velocity
+    \item[$\ddot{x}$] is the acceleration
+    \item[$u$] is an external force applied to the system
+\end{description}
+\vspace{0.25cm}
+The state space form of this equation can be represented as:
+$$\begin{bmatrix} \dot{x} \\ \ddot{x} \end{bmatrix} = \begin{bmatrix} 0 & 1 \\ -\frac{k}{m} & -\frac{b}{m} \end{bmatrix} \begin{bmatrix} x \\ \dot{x} \end{bmatrix} + \begin{bmatrix} 0 \\ \frac{1}{m} \end{bmatrix} u \eqno{(12)}$$
+which forms the basis for the state estimate propagation equation (3), where:
+$$\mathbf{\Phi} = \begin{bmatrix} 0 & 1 \\ -\frac{k}{m} & -\frac{b}{m} \end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0 \\ \frac{\Delta t}{m} \end{bmatrix}$$
+To make this compatible with a discrete-time Kalman filter, Euler’s approximation can be used to discretize the systems so that finally:
+$$\mathbf{\Phi} = \begin{bmatrix} 1 & \Delta t \\ -\frac{k}{m} \Delta t & 1-\frac{b}{m} \Delta t\end{bmatrix}, \quad \mathbf{B} = \begin{bmatrix} 0 \\ \frac{1}{m} \end{bmatrix}$$
+Now, these matrices can be substituted back into (3) to allow the discrete-time SHM model to be used in the prediction step to update the state estimate recursively based on input measurements.
 
-\end{itemize}
+The parameter vector $\lambda^k$ represents the set of parameters for the $k^{th}$ Kalman filter in the bank of estimators used in the MMAE algorithm. Each $\lambda^k$ consists of three unique components, $\{m, k, b\}$, which define the resulting dynamics of the corresponding system and are used to update the parameter estimate of the true system being modeled.
 
+\subsection{Multiple-Model Adaptive Estimation Algorithm}
+The Multiple Model Adaptive Estimation (MMAE) algorithm, as described in [4], employs a bank of Kalman filters, each configured with a distinct parameter set to simulate the dynamics of a real system. The primary objective of the algorithm is to run these estimators in parallel, continuously comparing their state estimates with incoming measurements. A Bayesian prediction strategy is then applied to probabilistically weight the predictions of each Kalman filter based on their consistency with the observed data. This approach allows the algorithm to identify and emphasize the models that best describe the system's behavior. As a result, the MMAE framework not only produces a weighted estimate of the true system state but can also be extended to infer a weighted estimate of the underlying parameter vector [4, 9].
 
-\section{USING THE TEMPLATE}
-
-Use this sample document as your LaTeX source file to create your document. Save this file as {\bf root.tex}. You have to make sure to use the cls file that came with this distribution. If you use a different style file, you cannot expect to get required margins. Note also that when you are creating your out PDF file, the source file is only part of the equation. {\it Your \TeX\ $\rightarrow$ PDF filter determines the output file size. Even if you make all the specifications to output a letter file in the source - if your filter is set to produce A4, you will only get A4 output. }
-
-It is impossible to account for all possible situation, one would encounter using \TeX. If you are using multiple \TeX\ files you must make sure that the ``MAIN`` source file is called root.tex - this is particularly important if your conference is using PaperPlaza's built in \TeX\ to PDF conversion tool.
-
-\subsection{Headings, etc}
-
-Text heads organize the topics on a relational, hierarchical basis. For example, the paper title is the primary text head because all subsequent material relates and elaborates on this one topic. If there are two or more sub-topics, the next level head (uppercase Roman numerals) should be used and, conversely, if there are not at least two sub-topics, then no subheads should be introduced. Styles named Heading 1, Heading 2, Heading 3, and Heading 4 are prescribed.
-
-\subsection{Figures and Tables}
-
-Positioning Figures and Tables: Place figures and tables at the top and bottom of columns. Avoid placing them in the middle of columns. Large figures and tables may span across both columns. Figure captions should be below the figures; table heads should appear above the tables. Insert figures and tables after they are cited in the text. Use the abbreviation Fig. 1, even at the beginning of a sentence.
+The MMAE algorithm and its direct derivation have been thoroughly explored in various sources, a couple examples are [4, 9]. A brief summary is provided in table 1 because it will be applied in simulations.
 
 \begin{table}[h]
-\caption{An Example of a Table}
-\label{table_example}
-\begin{center}
-\begin{tabular}{|c||c|}
-\hline
-One & Two\\
-\hline
-Three & Four\\
-\hline
-\end{tabular}
-\end{center}
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.5}
+    \setlength{\tabcolsep}{4pt} % Adjust spacing
+    \begin{tabular}{|c|}
+        \hline
+        \textbf{Key Equations in the MMAE Framework} \\
+        \hline
+        \begin{minipage}{0.95\linewidth} % Minipage keeps content wrapped within column
+            \begin{equation} 
+                f_{z(t_i) | \mathbf{h}^k, Z(t_{i-1})} (\mathbf{z}_i \mid \mathbf{h}^k, \mathbf{Z}_{i-1}) = \beta^k \exp\{\cdot\} 
+                \tag{13}
+            \end{equation}
+            \centering \textit{Conditional probability density function of the measurement.}
+        \end{minipage} \\
+        \hline
+        \begin{minipage}{0.95\linewidth}
+            \begin{equation} 
+                \beta^k = \frac{1}{(2\pi)^{m/2} |\mathbf{A}^k|^{1/2}} 
+                \tag{14}
+            \end{equation}
+            \centering \textit{Normalization constant for the Gaussian density function.}
+        \end{minipage} \\
+        \hline
+        \begin{minipage}{0.95\linewidth}
+            \begin{equation} 
+                \{ \cdot \} = \left\{ -\frac{1}{2} \mathbf({r^k})^T (t_i) \mathbf({A}^k)^{-1} \mathbf{r}^k (t_i) \right\} 
+                \tag{15}
+            \end{equation}
+            \centering \textit{Exponent term in the Gaussian density function.}
+        \end{minipage} \\
+        \hline
+        \begin{minipage}{0.95\linewidth}
+            \begin{equation} 
+                q^k (t_i) = \mathbf({r}^k)^T (t_i) \mathbf({A}^k)^{-1} \mathbf{r}^k (t_i) 
+                \tag{16}
+            \end{equation}
+            \centering \textit{Scalar likelihood quotient.}
+        \end{minipage} \\
+        \hline
+        \begin{minipage}{0.95\linewidth}
+            \begin{equation} 
+                p^k (t_i) = \Pr\{\mathbf{h} = \mathbf{h}^k \mid \mathbf{Z}(t_i) = \mathbf{Z}_i\} 
+                \tag{17}
+            \end{equation}
+            \centering \textit{Conditional probability of a hypothesis.}
+        \end{minipage} \\
+        \hline
+        \begin{minipage}{0.95\linewidth}
+            \begin{equation} 
+                p^k (t_i) = \frac{ f_{z(t_i) | \mathbf{h}^k, Z(t_{i-1})} (\mathbf{z}_i \mid \mathbf{h}^k, \mathbf{Z}_{i-1}) \cdot p^k (t_{i-1}) }
+                {\sum\limits_{j=1}^{K} f_{z(t_i) | \mathbf{h}_j, Z(t_{i-1})} (\mathbf{z}_i \mid \mathbf{h}_j, \mathbf{Z}_{i-1}) \cdot p_j (t_{i-1}) } 
+                \tag{18}
+            \end{equation}
+            \centering \textit{Recursive Bayesian update for the hypothesis probability.}
+        \end{minipage} \\
+        \hline
+    \end{tabular}
+    \caption{Summary of key equations in the MMAE algorithm}
+    \label{tab:equations_summary}
 \end{table}
 
+These equations wholistically describe the mathematical formulation for the MMAE hypothesis testing algorithm. Multiple Kalman filters are ran in parallel to evaluate different hypotheses for system parameters. Overall, first likelihoods of each hypothesis are calculated given new measurements. Next, the hypotheses are normalized and scored based on residual errors. Lastly, the probability of each hypothesis are updated recursively using Bayes’ theorem.
 
-   \begin{figure}[thpb]
-      \centering
-      \framebox{\parbox{3in}{We suggest that you use a text box to insert a graphic (which is ideally a 300 dpi TIFF or EPS file, with all fonts embedded) because, in an document, this method is somewhat more stable than directly inserting a picture.
-}}
-      %\includegraphics[scale=1.0]{figurefile}
-      \caption{Inductance of oscillation winding on amorphous
-       magnetic core versus DC bias magnetic field}
-      \label{figurelabel}
-   \end{figure}
-   
+\begin{algorithm}
+\caption{CV Informed Multiple-Model Adaptive Estimation (MMAE) for Vehicle Parameter Estimation} 
+\label{alg:mmae}
+\begin{algorithmic}[1]
+    \Require 
+    \begin{itemize}
+        \item Video stream from camera
+        \item Pre-trained CV pipeline
+        \item Bank of Kalman Filters $\{KF^k\}$, each initialized with a parameter set $\lambda^k = \{m^k, k^k, b^k\}$
+    \end{itemize}
+    \Ensure Estimated vehicle parameters $\hat{\lambda} = [\hat{m}, \hat{k}, \hat{b}]$
+    
+    \State \textbf{Step 1: Measurement Acquisition}
+    \State Capture image frame from video stream.
+    \State Process image using CV to extract vehicle type and position $z$.
+    
+    \State \textbf{Step 2: Model Selection}
+    \State Determine corresponding parameter set $\lambda^k$ based on identified vehicle type.
+    
+    \State \textbf{Step 3: Kalman Filter Updates}
+    \For{each estimator $KF^k$ in $\{KF^k\}$}
+        \State Compute predicted measurement $\hat{z}^k$ (4).
+        \State Compute residual $r^k$ (9).
+        \State Update Kalman gain and state estimate using (7) and (8).
+    \EndFor
+    
+    \State \textbf{Step 4: Likelihood Computation}
+    \For{each model $k$}
+        \State Compute likelihood $f_{z | h^k, Z}$ using Eq. (13).
+        \State Compute normalized weight $\beta^k$ using Eq. (14).
+        \State Compute likelihood quotient $q^k$ using Eq. (16).
+    \EndFor
+    
+    \State \textbf{Step 5: Bayesian Probability Update}
+    \State Compute updated hypothesis probabilities $p^k(t_i)$ using Eq. (18).
+    
+    \State \textbf{Step 6: Parameter Estimation}
+    \State Compute weighted estimate of $\lambda$:
+    \[
+        \hat{\lambda} = \sum_{k=1}^{K} p^k(t_i) \lambda^k
+    \]
+    
+    \State \textbf{Step 7: Iterate for Next $t_i$}
+\end{algorithmic}
+\end{algorithm}
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words rather than symbols or abbreviations when writing Figure axis labels to avoid confusing the reader. As an example, write the quantity Magnetization, or Magnetization, M, not just M. If including units in the label, present them within parentheses. Do not label axes only with units. In the example, write Magnetization (A/m) or Magnetization {A[m(1)]}, not just A/m. Do not label axes with a ratio of quantities and units. For example, write Temperature (K), not Temperature/K.
+\section{EXPERIMENTS}
+Using a simple monocular camera setup and a common roadway speed bump \textit{(fig. 2)}, we validate the claims of our proposed methodology by observing and measuring the displacement of a vehicle's suspension system as it traverses the speed bump obstacle. Two note cards are used as markers and are placed vertically inline with the center of the nearest wheel hub at each strut location. We record the vehicle with its direction of motion parallel to the camera's lens, moving at a near-constant speed, and measure the centroid of each note card, wheel, and vehicle body as well as their respective widths and heights in pixels. Then, we compute the difference between each visible wheel and note card pair for the entire collection of time-series measurements to closely capture the actual displacement of the vehicle suspension system in response to the speed bump input. This process is performed in three distinct vehicle classes, carrying three different loads. Finally, we utilize these newly collected measurements with the algorithmic implementation defined above to identify the most probable set of parameters, distinguishing each experiment case based only on differences in physical behavior. We then use this collection of experiments to answer the following questions:
 
-\section{CONCLUSIONS}
+\begin{itemize}
+\item Is our architecture capable of generalizing to systems of high complexity using a prescribed physics-based model?
+\item Can we accurately estimate the parameters of the prescribed model based on ground truth values?
+\item Do these parameter estimates enable us to generate new inferences that characterize an object's properties and potential interactions with the environment?
+\end{itemize}
 
-A conclusion section is not required. Although a conclusion may review the main points of the paper, do not replicate the abstract as the conclusion. A conclusion might elaborate on the importance of the work or suggest applications and extensions. 
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{4_points.jpg}
+    \caption{Experiment Setup}
+    \label{figure_2}
+\end{figure}
+
+\subsection {Test Cases}
+We select the following vehicle classes: \textit{Truck, SUV,} and \textit{Sports}, due to their distinguishing system properties, allowing us to reinforce the claim of our pipeline architecture's generalizability, and testing each vehicle class under the following load configurations:
+\begin{itemize}
+    \item \textbf{Case A:} A driver, no passengers 
+    \item \textbf{Case B:} A driver, two passengers
+    \item \textbf{Case C:} A driver, four passengers
+\end{itemize}
+
+\subsection{Evaluation Metrics}
+To evaluate the performance of the pipeline architecture, we utilize the following metrics to analyze the accuracy and fitment of our estimated parameters. 
+\begin{itemize}
+    \item \textbf{Mean Absolute Percentage Error (MAPE):} MAPE will be used to evaluate how close our forecast parameters are to the actual system parameters and is helpful in this situation due to its intuitive interpretation of the magnitude of relative error and is scale independent.
+    $$\text{MAPE} = \frac{100}{N} \sum_{t=1}^{N} \left| \frac{z_t - \hat{z}_t}{z_t} \right|$$
+    \item \textbf{Coefficient of Determination (R-squared):} The R-squared metric will be used to evaluate the quality of fit of our estimated parameters by measuring the proportion of variation in the measured model data, which is adjusted to account for the number of measurements $n$ and predictors $p$.
+    $$R^2 = 1 - \frac{\sum_{t=1}^{n} (z_t - \hat{z}_t)^2}{\sum_{t=1}^{n} (z_t - \bar{z})^2}$$
+    $$\text{Adjusted } R^2 = 1 - \left( \frac{(1 - R^2) \cdot (n - 1)}{n - p - 1} \right)$$
+\end{itemize}
+
+\section{RESULTS AND DISCUSSION}
+(In progress) Here we discuss the results of our experiments
+
+
+\section{FUTURE WORK}
+(In progress)
+
+Where can we take advantage of these newly generated affordances
+a more sophisticated measurement device
+discussion of the points Zida brought up -> embodied ai
+\section{CONCLUSION}
+In summary, this paper presents a CV-informed parameter estimation pipeline, an approach that capitalizes on qualitative and quantitative video data to classify objects and interpret intrinsic parameters to gain a holistic understanding of a subject of interest. Using this method we leverage the capabilities of the MMAE algorithm [4] by providing it with observational data from the CV processing unit that closely resembles the desired motion profile needed for analysis. From this evaluation, we're able to uncover... These results validate the contributions outlined in Section I, by...verifying the integrity of our results using synthetic and real-world testing...
+
 
 \addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
                                   % on the last page of the document manually. It shortens
@@ -190,48 +381,24 @@ A conclusion section is not required. Although a conclusion may review the main 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{APPENDIX}
-
-Appendixes should appear before the acknowledgment.
 
 \section*{ACKNOWLEDGMENT}
-
-The preferred spelling of the word acknowledgment in America is without an e after the g. Avoid the stilted expression, One of us (R. B. G.) thanks . . .  Instead, try R. B. G. thanks. Put sponsor acknowledgments in the unnumbered footnote on the first page.
-
+This study was supported by the Automated Domain-Understanding and Collaborative Agency (ADUCA) ECOLE project, started by a branch of General Electric (GE) in collaboration with the Laboratory for Embedded Machines and Ubiquitous Robots (LEMUR) lab.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-References are important to the reader; therefore, each citation must be complete and correct. If at all possible, references should be commonly available publications.
-
-
-
 \begin{thebibliography}{99}
-
-\bibitem{c1} G. O. Young, Synthetic structure of industrial plastics (Book style with paper title and editor), 	in Plastics, 2nd ed. vol. 3, J. Peters, Ed.  New York: McGraw-Hill, 1964, pp. 1564.
-\bibitem{c2} W.-K. Chen, Linear Networks and Systems (Book style).	Belmont, CA: Wadsworth, 1993, pp. 123135.
-\bibitem{c3} H. Poor, An Introduction to Signal Detection and Estimation.   New York: Springer-Verlag, 1985, ch. 4.
-\bibitem{c4} B. Smith, An approach to graphs of linear forms (Unpublished work style), unpublished.
-\bibitem{c5} E. H. Miller, A note on reflector arrays (Periodical styleAccepted for publication), IEEE Trans. Antennas Propagat., to be publised.
-\bibitem{c6} J. Wang, Fundamentals of erbium-doped fiber amplifiers arrays (Periodical styleSubmitted for publication), IEEE J. Quantum Electron., submitted for publication.
-\bibitem{c7} C. J. Kaufman, Rocky Mountain Research Lab., Boulder, CO, private communication, May 1995.
-\bibitem{c8} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, Electron spectroscopy studies on magneto-optical media and plastic substrate interfaces(Translation Journals style), IEEE Transl. J. Magn.Jpn., vol. 2, Aug. 1987, pp. 740741 [Dig. 9th Annu. Conf. Magnetics Japan, 1982, p. 301].
-\bibitem{c9} M. Young, The Techincal Writers Handbook.  Mill Valley, CA: University Science, 1989.
-\bibitem{c10} J. U. Duncombe, Infrared navigationPart I: An assessment of feasibility (Periodical style), IEEE Trans. Electron Devices, vol. ED-11, pp. 3439, Jan. 1959.
-\bibitem{c11} S. Chen, B. Mulgrew, and P. M. Grant, A clustering technique for digital communications channel equalization using radial basis function networks, IEEE Trans. Neural Networks, vol. 4, pp. 570578, July 1993.
-\bibitem{c12} R. W. Lucky, Automatic equalization for digital communication, Bell Syst. Tech. J., vol. 44, no. 4, pp. 547588, Apr. 1965.
-\bibitem{c13} S. P. Bingulac, On the compatibility of adaptive controllers (Published Conference Proceedings style), in Proc. 4th Annu. Allerton Conf. Circuits and Systems Theory, New York, 1994, pp. 816.
-\bibitem{c14} G. R. Faulhaber, Design of service systems with priority reservation, in Conf. Rec. 1995 IEEE Int. Conf. Communications, pp. 38.
-\bibitem{c15} W. D. Doyle, Magnetization reversal in films with biaxial anisotropy, in 1987 Proc. INTERMAG Conf., pp. 2.2-12.2-6.
-\bibitem{c16} G. W. Juette and L. E. Zeffanella, Radio noise currents n short sections on bundle conductors (Presented Conference Paper style), presented at the IEEE Summer power Meeting, Dallas, TX, June 2227, 1990, Paper 90 SM 690-0 PWRS.
-\bibitem{c17} J. G. Kreifeldt, An analysis of surface-detected EMG as an amplitude-modulated noise, presented at the 1989 Int. Conf. Medicine and Biological Engineering, Chicago, IL.
-\bibitem{c18} J. Williams, Narrow-band analyzer (Thesis or Dissertation style), Ph.D. dissertation, Dept. Elect. Eng., Harvard Univ., Cambridge, MA, 1993. 
-\bibitem{c19} N. Kawasaki, Parametric study of thermal and chemical nonequilibrium nozzle flow, M.S. thesis, Dept. Electron. Eng., Osaka Univ., Osaka, Japan, 1993.
-\bibitem{c20} J. P. Wilkinson, Nonlinear resonant circuit devices (Patent style), U.S. Patent 3 624 12, July 16, 1990. 
-
-
-
-
+\bibitem{c1} M. Q. Feng, R. Y. Leung, and C. M. Eckersley, “Non-Contact vehicle Weigh-in-Motion using computer vision,” Redirecting, https://doi.org/10.1016/j.measurement.2019.107415. 
+\bibitem{c2} G. E. Karniadakis et al., “Physics-informed Machine Learning,” Nature News, https://www.nature.com/articles/s42254-021-00314-5. 
+\bibitem{c3} C. Meng, S. Seo, D. Cao, S. Griesemer, and Y. Liu, “When physics meets machine learning: A survey of physics-informed Machine Learning,” arXiv.org, https://doi.org/10.48550/arXiv.2203.16797.
+\bibitem{c4} P. D. Hanlon and P. S. Maybeck, "Multiple-model adaptive estimation using a residual correlation Kalman filter bank," in IEEE Transactions on Aerospace and Electronic Systems, vol. 36, no. 2, pp. 393-406, April 2000, doi: 10.1109/7.845216.
+\bibitem{c5} R. Khanam and M. Hussain, “Yolov11: An overview of the key architectural enhancements,” arXiv.org, https://doi.org/10.48550/arXiv.2410.17725. 
+\bibitem{c6} R. E. Kalman, “A New Approach to Linear Filtering and Prediction Problems,” *Trans. ASME, J. Basic Eng.*, vol. 82, no. 1, pp. 35–45, Mar. 1960, doi: 10.1115/1.3662552.
+\bibitem{c7} G. Welch and G. Bishop, “An Introduction to the Kalman Filter,” University of North Carolina, Tech. Rep. TR 95-041, 2001.
+\bibitem{c8} P. Dourmashkin, “Chapter 23: Simple Harmonic Motion,” in \textit{Classical Mechanics}, Massachusetts Institute of Technology, MIT OpenCourseWare, 2016. [Online]. Available: \url{https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/pages/online-textbook/}. [Accessed: Mar. 5, 2025].
+\bibitem{c9} D. Magill, "Optimal adaptive estimation of sampled stochastic processes," in \textit{IEEE Transactions on Automatic Control}, vol. 10, no. 4, pp. 434-439, Oct. 1965, doi: 10.1109/TAC.1965.1098191.
+\bibitem{c10} Jocher, G., Qiu, J., \& Chaurasia, A. (2023). Ultralytics YOLO (Version 8.0.0) [Computer software]. https://github.com/ultralytics/ultralytics
 
 
 \end{thebibliography}

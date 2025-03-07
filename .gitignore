@@ -1,4 +1,7 @@
 # Additionall Ignore from lab group
+
+computer_vision/images/*
+!computer_vision/images/.gitkeep
 videos/*
 !videos/.gitkeep
 output/*
