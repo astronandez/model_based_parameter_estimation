@@ -1,5 +1,5 @@
 import cv2 as cv
-
+import yaml
 from computer_vision.detector import Detector
 from computer_vision.camera import Camera
 from computer_vision.tools.common import *
@@ -16,6 +16,9 @@ class MeasurementGenerator(Camera):
         self.detector = Detector(detector_config)
         self.dataloader = Dataloader(detector_config["output"])
         self.watch = Stopwatch()
+        calibration_data = loadConfig(detector_config["calibration_data"])
+        self.camera_matrix = array(calibration_data["camera_matrix"])
+        self.dist_coeffs = array(calibration_data["dist_coeff"])
         self.data = {}
         self.case_id = case_id
         
@@ -26,6 +29,7 @@ class MeasurementGenerator(Camera):
             frame (cv.Mat): the next frame from input feed
         """
         frame = cv.resize(frame, (self.detector.frame_w, self.detector.frame_h))
+        frame = cv.undistort(frame, self.camera_matrix, self.dist_coeffs, None)
         detections = self.detector.measurement(frame)
         self.watch.sync()
         if detections:

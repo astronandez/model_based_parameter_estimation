@@ -1,4 +1,4 @@
-from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray
+from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray, log10
 import json
 import cv2 as cv
 from itertools import product
@@ -35,12 +35,8 @@ def defaultSetup(config):
     ms = arange(m_start, m_end + m_step, m_step).tolist()
     ks = arange(k_start, k_end + k_step, k_step).tolist()
     bs = arange(b_start, b_end + b_step, b_step).tolist()
-
-    Qs = arange(Q_start, Q_end + Q_step, Q_step).tolist()
-    Rs = arange(R_start, R_end + R_step, R_step).tolist()
-
-    # Generate all possible combinations of m, k, and b
     λs = [array(λ) for λ in product(ms, ks, bs)]
+    
     # Configure Matricies
     x0 = array(config["x0"])
     dt = config["dt"]
@@ -50,6 +46,22 @@ def defaultSetup(config):
     H = array(config["H"])
     Q = eye(H.shape[1]) * config["true_Q"]
     R = eye(H.shape[0]) * config["true_R"]
+    
+    
+    # Generate a range of Qs and Rs for testing
+    # Q_variants = [Q_start * (Q_step ** i) for i in range(int(log10(Q_end / Q_start)) + 1)]
+    # Qs = [eye(H.shape[1]) * Q for Q in Q_variants]
+    # R_variants = [R_start * (R_step ** i) for i in range(int(log10(R_end / R_start)) + 1)]
+    # Rs = [eye(H.shape[0]) * R for R in R_variants]
+    Qs = []
+    for q_value in arange(Q_start, Q_end + Q_step, Q_step):
+        Q = eye(H.shape[1]) * q_value
+        Qs.append(Q)
+    
+    Rs = []
+    for r_value in arange(R_start, R_end + R_step, R_step):
+        R = eye(H.shape[1]) * r_value
+        Rs.append(R)
     
     return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0, model_name
 
