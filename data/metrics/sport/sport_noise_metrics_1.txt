@@ -1,0 +1,18 @@
+Model Metrics: sport_noise
+=====================================
+Mean of center in y-axis: 107.56894
+Variance of center in y-axis: 0.016028527
+Standard Deviation of center in y-axis: 0.12660383
+=====================================
+Mean of center in x-axis: 130.86719
+Variance of center in x-axis: 0.004767479
+Standard Deviation of center in x-axis: 0.06904693
+=====================================
+Mean of detection width: 14.552043
+Variance of detection width: 0.004203477
+Standard Deviation of detection width: 0.06483423
+=====================================
+Mean of detection height: 13.673407
+Variance of detection height: 0.007236168
+Standard Deviation of detection height: 0.08506567 
+

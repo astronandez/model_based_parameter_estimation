@@ -11,9 +11,11 @@ Toyota:
     Curb weight: 1805.298 kg (This assumes a full tank)
 
 
-zid = 140 lbs
-Til = 188 lbs
-J = 238 lbs
-Dav = 256 lbs
-Woo = 161 lbs
-Mar = 148 lbs
+zid = 140 lbs = 63.5029 kg
+Til = 188 lbs = 85.2754 kg
+J = 238 lbs = 107.955 kg
+Dav = 256 lbs = 116.12 kg
+Woo = 161 lbs = 73.0284 kg
+Mar = 148 lbs = 67.1317 kg
+
+sport_nopass = 1551.2857 kg

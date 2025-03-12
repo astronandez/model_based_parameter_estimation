@@ -1,5 +1,5 @@
 # Additionall Ignore from lab group
-
+computer_vision/apriltag-imgs/
 computer_vision/images/*
 !computer_vision/images/.gitkeep
 videos/*

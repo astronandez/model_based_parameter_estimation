@@ -1,7 +1,7 @@
 {
     "frame_w": 640,
     "frame_h": 360,
-    "detector": "./computer_vision/cv_models/sticky_detector5.pt",
+    "detector": "./computer_vision/cv_models/detector2.pt",
     "calibration_data": "./configuration_files/camera_configs/calibration_matrix_dslr.json",
     "output": "./output/",
     "min_dist": 50,

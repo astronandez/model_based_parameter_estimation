@@ -1,6 +1,6 @@
 import os
 import sys
-
+from numpy import median
 from measurement_generator import MeasurementGenerator
 from fitter import defaultFitment
 from evaluation import Evaluation
@@ -41,7 +41,7 @@ def loadHarnessConfig(config_path):
 
     # If this is the top-level config, update lower-level configs dynamically
     if "camera_config_path" in config and "detector_config_path" in config:
-        for key in ["camera_config_path", "detector_config_path"]:
+        for key in ["camera_config_path", "detector_config_path", "evaluation_config_path"]:
             lower_config_path = config[key]
 
             with open(lower_config_path, "r") as f:

@@ -1,0 +1,7 @@
+git clone https://github.com/AprilRobotics/apriltag.git
+cd apriltag
+mkdir build
+cd build
+cmake .. -DCMAKE_INSTALL_PREFIX=$(python -c "import sys; print(sys.prefix)")
+cmake --build . --config Release
+cmake --install .

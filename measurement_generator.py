@@ -1,5 +1,4 @@
 import cv2 as cv
-import yaml
 from computer_vision.detector import Detector
 from computer_vision.camera import Camera
 from computer_vision.tools.common import *
@@ -28,8 +27,9 @@ class MeasurementGenerator(Camera):
         Args:
             frame (cv.Mat): the next frame from input feed
         """
-        frame = cv.resize(frame, (self.detector.frame_w, self.detector.frame_h))
         frame = cv.undistort(frame, self.camera_matrix, self.dist_coeffs, None)
+        frame = cv.resize(frame, (self.detector.frame_w, self.detector.frame_h))
+
         detections = self.detector.measurement(frame)
         self.watch.sync()
         if detections:
@@ -37,12 +37,14 @@ class MeasurementGenerator(Camera):
                 cx, cy = obj_data['center']
                 width = obj_data['width']
                 height = obj_data['height']
-                frame = drawDetections(frame, id, cx, cy, width, height)
-                
-                if id not in self.data:
-                    self.data[id] = []
-                
-                self.data[id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
+                # print(obj_data['name'])
+                if obj_data['name'] == 'Tire' or obj_data['name'] == 'Square':
+                    frame = drawDetections(frame, id, cx, cy, width, height)
+                    
+                    if id not in self.data:
+                        self.data[id] = []
+                    
+                    self.data[id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
                 
                 # Retaining code below for more information when desired
                 # print(f"t: {self.watch._curr_time}, dt: {self.watch._dt}" )
