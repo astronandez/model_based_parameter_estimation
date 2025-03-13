@@ -1,9 +1,9 @@
 {
     "model_name": "MultivariableSimpleHarmonicOscillator",
-    "dt": 0.01668335001,
+    "dt": 0.008336807,
     "H": [
         [
-            183.8,
+            288.5,
             0
         ]
     ],
@@ -19,7 +19,7 @@
     "true_k": 485.1,
     "true_b": 1735.0,
     "true_Q": 100.0,
-    "true_R": 0.016028527,
+    "true_R": 0.0047521504892406,
     "Q_variants_start": 1e-05,
     "Q_variants_end": 100000.0,
     "Q_variants_step": 10,

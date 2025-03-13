@@ -1,4 +1,4 @@
-from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray, log10
+from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray, log10, diag
 import json
 import cv2 as cv
 from itertools import product
@@ -44,25 +44,35 @@ def defaultSetup(config):
     k = config['true_k']
     b = config['true_b']
     H = array(config["H"])
-    Q = eye(H.shape[1]) * config["true_Q"]
-    R = eye(H.shape[0]) * config["true_R"]
     
-    
-    # Generate a range of Qs and Rs for testing
-    # Q_variants = [Q_start * (Q_step ** i) for i in range(int(log10(Q_end / Q_start)) + 1)]
-    # Qs = [eye(H.shape[1]) * Q for Q in Q_variants]
-    # R_variants = [R_start * (R_step ** i) for i in range(int(log10(R_end / R_start)) + 1)]
-    # Rs = [eye(H.shape[0]) * R for R in R_variants]
+    if isinstance(config["true_Q"], list):
+        Q = diag(config["true_Q"])
+    else:
+        Q = array([[0, 0],
+                    [0, config["true_Q"]]])
+        
+    if isinstance(config["true_R"], list):
+        R = diag(config["true_R"])
+    else:
+        R = array([[config["true_R"]]])  
+
     Qs = []
     for q_value in arange(Q_start, Q_end + Q_step, Q_step):
-        Q = eye(H.shape[1]) * q_value
-        Qs.append(Q)
+        if isinstance(config["true_Q"], list):
+            Qins = diag([0, q_value, 0, q_value])
+        else:
+            Qins = array([[0, 0],
+                        [0, config["true_Q"]]])
+        Qs.append(Qins)
     
     Rs = []
     for r_value in arange(R_start, R_end + R_step, R_step):
-        R = eye(H.shape[1]) * r_value
-        Rs.append(R)
-    
+        if isinstance(config["true_R"], list):
+            Rins = diag(config["true_R"])
+        else:
+            Rins = array([[config["true_R"]]])  
+        Rs.append(Rins)
+    print(Q)
     return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0, model_name
 
 ############# Data Utilities ###################

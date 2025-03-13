@@ -10,21 +10,21 @@
     "write": true,
 
     "detector": "./computer_vision/cv_models/detector2.pt",
-    "calibration_data": "./configuration_files/camera_configs/calibration_matrix_dslr.json",
+    "calibration_data": "./configuration_files/camera_configs/calibration_matrix_iphone2x.json",
     "min_dist": 50,
     "max_age": 2,
-    "tag_size": 0.07,
+    "tag_size": 0.052,
     "use_tags": true,
 
-    "dt": 0.01668335001,
-    "H": [[183.8, 0]],
+    "dt": 0.008336807,
+    "H": [[288.5, 0]],
     "x0": [[0], [0]],
     
     "true_m": 1551.2857,
-    "true_k": 485.1,
-    "true_b": 1735.0,
+    "true_k": 80415,
+    "true_b": 23608.21213,
     "true_Q": 1e2,
-    "true_R": 0.016028527,
+    "true_R": 0.00475215048924060,
 
     "Q_variants_start": 1e-5,
     "Q_variants_end": 1e5,
@@ -47,9 +47,9 @@
     "b_variants_step": 100.0,
 
 
-    "from_recording": true,
-    "store_metrics": true,
+    "from_recording": false,
+    "store_metrics": false,
     "store_graphs": false,
     "store_fit": false,
-    "store_eval": false
+    "store_eval": true
 }

@@ -1,7 +1,7 @@
 {
     "frame_w": 640,
     "frame_h": 360,
-    "input": "./videos/apriltag/sport_120fps_4k_2x_load_2.mov",
+    "input": "./videos/apriltag/sport_120fps_4k_2x_load_1.mov",
     "output_path": "./videos/",
     "write": true
 }

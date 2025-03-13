@@ -120,7 +120,8 @@ class Harness:
             zs = [[[a], [b]] for a, b in zip((mean(cxs) - cxs), (mean(cys) - cys))]
             us = zeros_like(zs)
         else:
-            zs = [[[a]] for a in (mean(cys) - cys)]
+            # zs = [[[a]] for a in (mean(cys) - cys)]
+            zs = [[[a]] for a in (cys)]
             us = zeros_like(zs)
             
         return zs, us
@@ -134,22 +135,22 @@ class Harness:
     def fullTest(self):    
         # If true, we're creating a new dataset from a video file, else we're reading an existing dataset from a file
         measurements = self.sourceMeasurements()
-        for measurement in zip(*measurements):
-            ts, dts, cxs, cys, widths, heights = measurement
-            # If true, we store the metrics from the dataset in a .txt file, else we display our metrics to terminal only    
-            self.storeMetrics(cxs, cys, widths, heights)
+        ts, dts, cxs, cys, widths, heights = measurements
+        # If true, we store the metrics from the dataset in a .txt file, else we display our metrics to terminal only  
             
-            # If true, create graphs for the timeseries and plot their distributions
-            self.storeGraphs(ts, cxs, cys, widths, heights)
+        self.storeMetrics(cxs, cys, widths, heights)
+        
+        # If true, create graphs for the timeseries and plot their distributions
+        self.storeGraphs(ts, cxs, cys, widths, heights)
 
-            # If true, we want to fit a synthetic function to the actual dataset, else pass
-            self.storeFit(ts, cys)
-            
-            # Shape our measurements depending on the structure of our system model {A, B, H, Q, R}
-            zs, us = self.shapeMeasurements(cxs, cys)
-            
-            # If true, we run the MMAE algorithm on our measurement data
-            self.storeEvaluation(ts, dts, zs, us)
+        # If true, we want to fit a synthetic function to the actual dataset, else pass
+        self.storeFit(ts, cys)
+        
+        # Shape our measurements depending on the structure of our system model {A, B, H, Q, R}
+        zs, us = self.shapeMeasurements(cxs, cys)
+        
+        # If true, we run the MMAE algorithm on our measurement data
+        self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
     harness_config_path = "./configuration_files/harness_configs/apriltag/sport_nopass_apriltag.json"

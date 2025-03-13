@@ -20,7 +20,7 @@ objp[:,:2] = np.mgrid[0:9,0:6].T.reshape(-1,2)
 # Arrays to store object points and image points from all the images.
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
-path = './computer_vision/images/dslr/'
+path = './computer_vision/images/iphone/'
 images = glob.glob(f'{path}*.jpg')
 
 pathlib.Path(path).mkdir(parents=True, exist_ok=True) 

@@ -1,7 +1,7 @@
 import os
 import csv
 import time
-from numpy import ndarray, loadtxt, array
+from numpy import ndarray, column_stack, loadtxt, savetxt, array, arange, zeros_like, full_like
 
 class Dataloader:
     directory: str
@@ -38,7 +38,7 @@ class Dataloader:
         cys = array([row[3] for row in data])
         widths = array([row[4] for row in data])
         heights = array([row[5] for row in data])
-        
+        print(cys)
         return times, dts, cxs, cys, widths, heights
     
 if __name__ == "__main__":
@@ -47,95 +47,91 @@ if __name__ == "__main__":
     import cv2 as cv
     import json
     
-    
-    case_id = "sport_nopass_rb_norm"
-    data_file = f"./output/dslr data/{case_id}.csv"
-    case_id2 = "sport_nopass_fb_norm"
-    data_file2 = f"./output/dslr data/{case_id2}.csv"
-    case_id3 = "sport_nopass_rw_norm"
-    data_file3 = f"./output/dslr data/{case_id3}.csv"
-    case_id4 = "sport_nopass_fw_norm"
-    data_file4 = f"./output/dslr data/{case_id4}.csv"
-    # case_id = "sport_nopass_rb"
-    # data_file = f"./output/dslr data/{case_id}.csv"
-    # case_id2 = "sport_nopass_fb"
-    # data_file2 = f"./output/dslr data/{case_id2}.csv"
-    # case_id3 = "sport_nopass_rw"
-    # data_file3 = f"./output/dslr data/{case_id3}.csv"
-    # case_id4 = "sport_nopass_fw"
-    # data_file4 = f"./output/dslr data/{case_id4}.csv"
-        
-    # case_id = "sport_nopass_rb_norm"
-    # data_file = f"./output/{case_id}.csv"
-    # case_id2 = "sport_nopass_fb_norm"
-    # data_file2 = f"./output/{case_id2}.csv"
-    # case_id3 = "sport_nopass_rw_norm"
-    # data_file3 = f"./output/{case_id3}.csv"
-    # case_id4 = "sport_nopass_fw_norm"
-    # data_file4 = f"./output/{case_id4}.csv"
-    # case_id = "sport_nopass_rb"
-    # data_file = f"./output/{case_id}.csv"
-    # case_id2 = "sport_nopass_fb"
-    # data_file2 = f"./output/{case_id2}.csv"
-    # case_id3 = "sport_nopass_rw"
-    # data_file3 = f"./output/{case_id3}.csv"
-    # case_id4 = "sport_nopass_fw"
-    # data_file4 = f"./output/{case_id4}.csv"
     dataloader = Dataloader("./output/")
-    
-    labels_diff = [f"./graphs/rb_rw_diff_sport_nopass_y_timeseries.fig",
-            f"Timeseries data of y measurements Difference between body and wheel",
+
+    data_files = {
+        "tag_3_n": "./data/apriltag/sport_nopass_apriltag_tag_3.csv",
+        "tag_4_n": "./data/apriltag/sport_nopass_apriltag_tag_4.csv",
+        "tag_5_n": "./data/apriltag/sport_nopass_apriltag_tag_5.csv",
+        "tag_6_n": "./data/apriltag/sport_nopass_apriltag_tag_6.csv",
+        "tag_3": "./data/apriltag/sport_onepass_apriltag_tag_3.csv",
+        "tag_4": "./data/apriltag/sport_onepass_apriltag_tag_4.csv",
+        "tag_5": "./data/apriltag/sport_onepass_apriltag_tag_5.csv",
+        "tag_6": "./data/apriltag/sport_onepass_apriltag_tag_6.csv",
+    }
+
+    # Load data
+    data = {tag: dataloader.load(path) for tag, path in data_files.items()}
+
+    # Extract relevant data and compute mean-shifted values
+    dt = 1 / 119.95
+    x_series = {tag: (cxs - cxs[0]) for tag, (_, _, cxs, _, _, _) in data.items()}
+    y_series = {tag: -(cys - cys[0]) for tag, (_, _, _, cys, _, _) in data.items()}
+    time_series = {tag: arange(len(y)) * dt for tag, y in y_series.items()}
+
+    # Define tag pairs and corresponding labels
+    pairs = [
+        ("tag_3", "tag_4"),
+        ("tag_5", "tag_6"),
+        ("tag_3_n", "tag_4_n"),
+        ("tag_5_n", "tag_6_n"),
+    ]
+
+    y_difference_labels = {
+        f"{a}_minus_{b}": [
+            f"./graphs/{a}_minus_{b}_y_timeseries.fig",
+            f"Difference: {a} - {b}",
             "Time (s)",
-            "Position (px)"]
+            "Position Difference (px)"
+        ]
+        for a, b in pairs
+    }
     
-    labels = [f"./graphs/{case_id}_nopass_y_timeseries.fig",
-            f"Timeseries data of y measurements file: {case_id}",
-            "Time (s)",
-            "Position (px)"]
-    
-    labels2 = [f"./graphs/{case_id2}_nopass_y_timeseries.fig",
-            f"Timeseries data of y measurements file: {case_id2}",
-            "Time (s)",
-            "Position (px)"]
-    
-    labels3 = [f"./graphs/{case_id3}_nopass_y_timeseries.fig",
-            f"Timeseries data of y measurements file: {case_id3}",
-            "Time (s)",
-            "Position (px)"]
-    
-    labels4 = [f"./graphs/{case_id4}_nopass_y_timeseries.fig",
-        f"Timeseries data of y measurements file: {case_id4}",
+    x_difference_labels = {
+    f"{a}_minus_{b}_x": [
+        f"./graphs/{a}_minus_{b}_x_timeseries.fig",
+        f"X Difference: {a} - {b}",
         "Time (s)",
-        "Position (px)"]
-    
-    ts, _, cxs, cys, _, _ = dataloader.load(data_file)
-    ts2, _, cxs2, cys2, _, _  = dataloader.load(data_file2)
-    ts3, _, cxs3, cys3, _, _  = dataloader.load(data_file3)
-    ts4, _, cxs4, cys4, _, _  = dataloader.load(data_file4)
-    
-    # cys = max(cys) - cys
-    # cys2 = max(cys2) - cys2
-    
-    # min_length = min(len(cys2), len(cys))
-    # y = cys[-min_length:] - cys2[-min_length:]
-    # cys = max(cys) - cys
-    # cys2 = max(cys2) - cys2
-    # y = cys - cys2
- 
-    # plotTimeSeries((ts[-min_length:] - ts[0]), (y - mean(y)), labels_diff)
-    # plotTimeSeries((ts[-min_length:] - ts[-min_length]), (cys[-min_length:] - mean(cys[-min_length:])), labels)
-    # plotTimeSeries((ts2[-min_length:] - ts2[-min_length]), (cys2[-min_length:] - mean(cys2[-min_length:])), labels2)
-    
-    # plotTimeSeries((ts- ts[0]), y, labels_diff)
-    
-    cys = mean(cys) - cys
-    cys2 = mean(cys2) - cys2
-    cys3 = mean(cys3) - cys3
-    cys4 = mean(cys4) - cys4
-    
-    plotTimeSeries((ts - ts[0]), cys, labels)
-    plotTimeSeries((ts2 - ts2[0]), cys2, labels2)
-    plotTimeSeries((ts3 - ts3[0]), cys3, labels3)
-    plotTimeSeries((ts4 - ts4[0]), cys4, labels4)
+        "Position Difference (px)"
+    ]
+    for a, b in pairs
+}
+
+    for tag_a, tag_b in pairs:
+        min_len = min(len(y_series[tag_a]), len(y_series[tag_b]))
+
+        # Truncate series
+        y_diff = y_series[tag_a][:min_len] - y_series[tag_b][:min_len]
+        x_diff = x_series[tag_a][:min_len] - x_series[tag_b][:min_len]
+        time_diff = time_series[tag_a][:min_len]
+
+        # Save to CSV
+        dts = full_like(y_diff, dt)
+        output_data = column_stack((time_diff, dts, x_series[tag_b][:min_len], y_diff))
+        output_path = f"./output/{tag_a}_minus_{tag_b}_corrected.csv"
+
+        savetxt(output_path, output_data, 
+                delimiter=",", 
+                header="time, dts, Center (x-axis), Center (y-axis)", 
+                comments='')
+
+        print(f"Data saved successfully to {output_path}")
+
+        plotTimeSeries(time_diff, y_diff, y_difference_labels[f"{tag_a}_minus_{tag_b}"])
+        plotTimeSeries(time_diff, x_diff, x_difference_labels[f"{tag_a}_minus_{tag_b}_x"])
+
     plt.show()
     
+    
+    # # Save to CSV
+    # for tag in y_series:
+    #     dts = full_like(y_series[tag], dt)
+    #     output_data = column_stack((time_series[tag], dts, x_series[tag], y_series[tag]))
+    #     output_path = f"./output/sport_onepass_{tag}_corrected.csv"
+
+    #     savetxt(output_path, output_data, 
+    #             delimiter=",", 
+    #             header="time, dts, Center (x-axis), Center (y-axis)", 
+    #             comments='')
+        
+    #     print(f"Data saved successfully to {output_path}")

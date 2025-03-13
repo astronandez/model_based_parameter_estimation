@@ -1,0 +1,32 @@
+{
+    "model_name": "MultivariableSimpleHarmonicOscillator2D",
+    "dt": 0.008336807,
+    "H": [[288.5, 0, 0, 0], [0, 0, 288.5, 0]],
+    "x0": [[0], [0], [0], [0]],
+    
+    "true_m": 1551.2857,
+    "true_k": 80415,
+    "true_b": 23045.28382,
+    "true_Q": [0, 1e-2, 0, 1e-2],
+    "true_R": [0.00475215048924060, 0.0064338836018186865],
+
+    "Q_variants_start": 1e-4,
+    "Q_variants_end": 1e-2,
+    "Q_variants_step": 1e-4,
+
+    "R_variants_start": 1.0,
+    "R_variants_end": 1.0,
+    "R_variants_step": 1.0,
+
+    "m_variants_start": 1000.0,
+    "m_variants_end": 2000.0,
+    "m_variants_step": 100.0,
+
+    "k_variants_start": 78000.0,
+    "k_variants_end": 83000.0,
+    "k_variants_step": 1000.0,
+
+    "b_variants_start": 20000.0,
+    "b_variants_end": 30000.0,
+    "b_variants_step": 1000.0
+}

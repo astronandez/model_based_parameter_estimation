@@ -39,6 +39,7 @@ class MeasurementGenerator(Camera):
         self.camera_matrix = array(calibration_data["camera_matrix"])
         self.dist_coeffs = array(calibration_data["dist_coeff"])
         
+        self.tag_size = detector_config["tag_size"]
         self.object_data = {}
         self.tag_data = {}
         self.case_id = case_id
@@ -55,7 +56,7 @@ class MeasurementGenerator(Camera):
         Args:
             frame (cv.Mat): the next frame from input feed
         """
-        # frame = cv.undistort(frame, self.camera_matrix, self.dist_coeffs, None)
+        frame = cv.undistort(frame, self.camera_matrix, self.dist_coeffs, None)
         frame = cv.resize(frame, (self.detector.frame_w, self.detector.frame_h))
         april_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         
@@ -86,6 +87,8 @@ class MeasurementGenerator(Camera):
             pass
     
     def aprilTagDetectionProcess(self,  april_frame: cv.Mat, frame: cv.Mat):
+        focal_length_x = self.camera_matrix[0, 0]  # f_x
+        focal_length_y = self.camera_matrix[1, 1]  # f_y
         detections = self.aprildetector.detect(april_frame)
         self.watch.sync()
         for detection in detections:
@@ -106,9 +109,9 @@ class MeasurementGenerator(Camera):
             cy = (y_min + y_max) / 2
             width = x_max - x_min
             height = y_max - y_min
-            
+
             H = detection.homography
-            Z0 = 1.32/2
+            Z0 = 1.5
             
             pixel_coord = array([[cx], [cy], [1]])
             transformed = H @ pixel_coord
@@ -118,11 +121,10 @@ class MeasurementGenerator(Camera):
                 depth = Z0 / w
                 real_cx = transformed[0, 0] / w
                 real_cy = transformed[1, 0] / w
-                
+
                 # Scale width and height to real-world size
-                focal_length = 1000  # Example focal length, adjust based on calibration
-                width_meters = (width / focal_length) * depth
-                height_meters = (height / focal_length) * depth
+                width_meters = (width / focal_length_x) * depth
+                height_meters = (height / focal_length_y) * depth
             else:
                 depth = 0
                 real_cx, real_cy = 0, 0
@@ -134,7 +136,8 @@ class MeasurementGenerator(Camera):
                 self.tag_data[tag_id] = []
             
             # # Store values for this tag ID
-            self.tag_data[tag_id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
+            # self.tag_data[tag_id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
+            self.tag_data[tag_id].append([self.watch._curr_time, self.watch._dt, real_cx, real_cy, abs(width_meters), abs(height_meters)])
 
             # Draw the detection
             for i in range(4):
@@ -145,10 +148,14 @@ class MeasurementGenerator(Camera):
             # Label the tag properly
             cv.putText(frame, f"ID: {tag_id}", (int(cx), int(cy) - 20),
                     cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv.putText(frame, f"Center: ({int(cx)}, {int(cy)})", (int(cx), int(cy) + 25),
-                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-            cv.putText(frame, f"W: {width} H: {height}", (int(cx), int(cy) + 45),
-                        cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            cv.putText(frame, f"Center: ({round(real_cx, 4)}, {round(real_cy, 4)})", 
+                    (int(cx), int(cy) + 25),
+                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+            cv.putText(frame, f"W: {round(abs(width_meters), 4)} H: {round(abs(height_meters), 4)} D: {round(depth, 4)}", 
+                    (int(cx), int(cy) + 45),
+                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
     
     def storeData(self):
         header = ["time", "dt", "Center (x-axis)", "Center (y-axis)", "box width", "box height"]

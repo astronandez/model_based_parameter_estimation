@@ -9,6 +9,7 @@ class Evaluation:
 
     def __init__(self, evaluation_config, case_id):
         m, k, b, Q, R, λs, dt, H, Qs, Rs, x0, model_name = defaultSetup(evaluation_config)
+        # print(Q)
         self.mmae = MMAE(λs, dt, H, Q, R, x0, False, model_name)
         
         self.model_variants = λs
@@ -80,72 +81,51 @@ class Evaluation:
         return best_q, best_mmae_score
     
 
-    
 if __name__ == "__main__":
     from computer_vision.tools.dataloader import Dataloader
     
-    def testbenchEvaluation(evaluation_config, case_id, highdim: bool = False):
-        dataloader = Dataloader("./output/")
-        evaluation = Evaluation(evaluation_config, case_id)
-        
+    def determineMeasurementComp(file_path, highdim: bool = False):
         if highdim:
-            ts, dts, cxs, cys, widths, heights = dataloader.load(f"./output/{case_id[:-3]}.csv")
-            zs = [[[a], [b]] for a, b in zip((mean(cxs) - cxs), (mean(cys) - cys))]
-            us = zeros_like(zs)
-        else:
-            ts, dts, cxs, cys, widths, heights = dataloader.load(f"./output/{case_id}.csv")
-            zs = [[[a]] for a in (mean(cys) - cys)]
-            us = zeros_like(zs)
-        
-        evaluation.defaultEvaluation(ts, dts, zs, us, True)
-        plt.show()
-    
-    def testbenchTestQ(evaluation_config, case_id, highdim: bool = False, start_idx: int = 0, end_idx: int = None):
-        dataloader = Dataloader("./output/")
-        evaluation = Evaluation(evaluation_config, case_id)
-        
-        if highdim:
-            ts, dts, cxs, cys, widths, heights = dataloader.load(f"./output/{case_id[:-3]}.csv")
-            
-            ts = ts[start_idx:end_idx]
-            cxs = cxs[start_idx:end_idx]
-            cys = cys[start_idx:end_idx]
-            
-            t = ts - ts[0]
-            x = (mean(cxs) - cxs)
-            y = (mean(cys) - cys)
-            widths = widths[start_idx:end_idx]
-            heights = heights[start_idx:end_idx]
+            data = loadtxt(file_path, delimiter=',', skiprows=1)
+            ts, dts, x, y = data[:, 0], data[:, 1], data[:, 2], data[:, 3]
             
             zs = [[[a], [b]] for a, b in zip(x, y)]
             us = zeros_like(zs)
         else:
-            ts, dts, cxs, cys, widths, heights = dataloader.load(f"./output/{case_id}.csv")
-            
-            ts = ts[start_idx:end_idx]
-            cxs = cxs[start_idx:end_idx]
-            cys = cys[start_idx:end_idx]
-            widths = widths[start_idx:end_idx]
-            heights = heights[start_idx:end_idx]
-            
-            t = ts - ts[0]
-            x = (mean(cxs) - cxs)
-            y = (mean(cys) - cys)
+            data = loadtxt(file_path, delimiter=',', skiprows=1)
+            ts, dts, y = data[:, 0], data[:, 1], data[:, 3]
             
             zs = [[[a]] for a in y]
             us = zeros_like(zs)
+            
+        return ts, dts, zs, us
+    
+    def testbenchEvaluation(evaluation_config, case_id, file_path, highdim: bool = False):
+        dataloader = Dataloader("./output/")
+        evaluation = Evaluation(evaluation_config, case_id)
         
-        detectionGraphics(case_id, t, x, y, widths, heights, False)
+        ts, dts, zs, us = determineMeasurementComp(file_path, highdim)
+        
+        evaluation.defaultEvaluation(ts, dts, zs, us, True)
         plt.show()
+    
+    def testbenchTestQ(evaluation_config, case_id, file_path, highdim: bool = False):
+        dataloader = Dataloader("./output/")
+        evaluation = Evaluation(evaluation_config, case_id)
+        
+        ts, dts, zs, us = determineMeasurementComp(file_path, highdim)
+        
         best_q, best_mmae_score = evaluation.testQ(dts, us, zs)
         print(f"Best Q matrix: {best_q}")
         print(f"Best MMAE score: {best_mmae_score}")
         
-        # Proceed with the default evaluation using the best Q matrix (this assumes `defaultEvaluation` uses the best Q)
+        evaluation.resetMMAE(best_q)
         evaluation.defaultEvaluation(ts, dts, zs, us, store=True)
         plt.show()
     
-    case_id = 'sport_nopass_rb_norm'    
-    evaluation_config_path = "./configuration_files/evaluation_configs/sport/evaluation_sport_nopass.json"
+    case_id = 'tag_5_minus_tag_6_corrected'
+    file_path = f"./output/{case_id}.csv"
+    evaluation_config_path = "./configuration_files/evaluation_configs/sport/evaluation_sport_onepass_apriltag_2d.json"
     evaluation_config = loadConfig(evaluation_config_path)
-    testbenchTestQ(evaluation_config, case_id, highdim=False, start_idx=7)
+    testbenchTestQ(evaluation_config, case_id, file_path, highdim=True)
+    # testbenchEvaluation(evaluation_config, case_id, file_path, True)
