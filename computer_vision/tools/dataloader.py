@@ -11,8 +11,14 @@ class Dataloader:
         os.makedirs(self.directory, exist_ok=True)
         
     def save(self, data: dict, header: list):
+        if not data:
+            print("Warning: No data to save.")
+            return None  # Return None when no data is provided
+
+        csv_file = None  # Initialize csv_file to ensure it's always defined
+        
         for id, rows in data.items():
-            csv_file = os.path.join(self.directory, f"obj_{id}_{time.strftime('%Y%m%d_%H%M%S')}.csv")
+            csv_file = os.path.join(self.directory, f"{id}_{time.strftime('%Y%m%d_%H%M%S')}.csv")
             file_exists = os.path.isfile(csv_file)
             
             with open(csv_file, mode='w', newline='') as file:

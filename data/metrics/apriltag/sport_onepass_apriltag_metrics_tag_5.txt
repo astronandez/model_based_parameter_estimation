@@ -1,0 +1,18 @@
+Model Metrics: sport_onepass_apriltag
+=====================================
+Mean of center in y-axis: 210.20564408735797
+Variance of center in y-axis: 65.5219730876762
+Standard Deviation of center in y-axis: 8.094564416179304
+=====================================
+Mean of center in x-axis: 325.9202967268048
+Variance of center in x-axis: 30527.75887569508
+Standard Deviation of center in x-axis: 174.72194732115105
+=====================================
+Mean of detection width: 16.83755707018304
+Variance of detection width: 2.54659455074091
+Standard Deviation of detection width: 1.5958052985063405
+=====================================
+Mean of detection height: 16.624254631273672
+Variance of detection height: 2.5085185857393957
+Standard Deviation of detection height: 1.5838303525754884 
+

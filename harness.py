@@ -40,21 +40,20 @@ def loadHarnessConfig(config_path):
         config = json.load(f)
 
     # If this is the top-level config, update lower-level configs dynamically
-    if "camera_config_path" in config and "detector_config_path" in config:
-        for key in ["camera_config_path", "detector_config_path", "evaluation_config_path"]:
-            lower_config_path = config[key]
+    for key in ["camera_config_path", "detector_config_path", "evaluation_config_path"]:
+        lower_config_path = config[key]
 
-            with open(lower_config_path, "r") as f:
-                lower_config = json.load(f)
+        with open(lower_config_path, "r") as f:
+            lower_config = json.load(f)
 
-            # Override values dynamically based on the top-level config
-            for k in lower_config.keys():
-                if k in config:
-                    lower_config[k] = config[k]
+        # Override values dynamically based on the top-level config
+        for k in lower_config.keys():
+            if k in config:
+                lower_config[k] = config[k]
 
-            # Save the updated lower-level config file
-            with open(lower_config_path, "w") as f:
-                json.dump(lower_config, f, indent=4)
+        # Save the updated lower-level config file
+        with open(lower_config_path, "w") as f:
+            json.dump(lower_config, f, indent=4)
 
     return config  # Return the loaded (and possibly modified) config
 
@@ -153,7 +152,8 @@ class Harness:
             self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
-    harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_nopass.json" 
+    harness_config_path = "./configuration_files/harness_configs/apriltag/sport_nopass_apriltag.json"
+    # harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_nopass.json" 
     # harness_config_path = "./configuration_files/harness_configs/suv/harness_suv_threepass.json" 
     # harness_config_path = "./configuration_files/harness_configs/truck/harness_truck_nopass.json" 
     harness = Harness(harness_config_path)

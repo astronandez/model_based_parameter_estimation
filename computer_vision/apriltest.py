@@ -5,7 +5,6 @@ from numpy import array, float32, mean, round
 from tools.common import loadConfig
 import matplotlib.pyplot as plt
 
-system_name = platform.system()
 detector1 = Detector(families="tagStandard41h12",
                      nthreads=1,
                      quad_decimate=1.0,
@@ -22,7 +21,6 @@ detector2 = Detector(families="tagCircle49h12",
                      decode_sharpening=0.25,
                      debug=0) 
 
-
 calibration_data = loadConfig("./configuration_files/camera_configs/calibration_matrix_dslr.json")
 camera_matrix = array(calibration_data["camera_matrix"])
 dist_coeffs = array(calibration_data["dist_coeff"])
@@ -34,10 +32,10 @@ c_x = camera_matrix[0, 2] * scale_x   # Principal point in X
 f_y = camera_matrix[1, 1] * scale_y  # Focal length in Y
 c_y = camera_matrix[1, 2] * scale_y   # Principal point in Y
 
-video_path = "./computer_vision/images/dual_tag_test.mp4"
+video_path = "./videos/apriltag/R_value.mov"
 # video_path = "./computer_vision/images/IMG_6434.MOV"
 cap = cv2.VideoCapture(video_path)
-output_path = './computer_vision/images/apriltagStandard41h12_test_output.mp4'
+output_path = './computer_vision/images/apriltag_R_value.mp4'
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4 files
 out = cv2.VideoWriter(output_path, fourcc, 30.0, (640, 360))
 
@@ -75,32 +73,43 @@ while cap.isOpened():
     print(len(detections))
     for detection in detections:
         tag_id = detection.tag_id  # Get the tag's ID
-        print(tag_id)
         image_points = array(detection.corners, dtype=float32)
-
+        
         x0, y0 = map(int, detection.corners[0])
         x1, y1 = map(int, detection.corners[1])
         x2, y2 = map(int, detection.corners[2])
         x3, y3 = map(int, detection.corners[3])
-
-        # Pose estimation
-        success, rvec, tvec = cv2.solvePnP(object_points, image_points, camera_matrix, dist_coeffs, 
-                                        flags=cv2.SOLVEPNP_IPPE_SQUARE)
-        depth = tvec[2][0] if success else 0  # Depth from translation vector
-
-        # Compute corrected X and Y coordinates
-        center_xs = int(((mean(image_points[:, 0]) - c_x) * depth / f_x) + c_x)
-        center_ys = int(((mean(image_points[:, 1]) - c_y) * depth / f_y) + c_y)
         
-        # Compute bounding box information
-        center_x = int((min(x0, x3) + max(x1, x2)) / 2)
-        center_y = int((min(y0, y1) + max(y2, y3)) / 2)
-        width = int(max(x1, x2) - min(x0, x3))
-        height = int(max(y2, y3) - min(y0, y1))
+        # Compute bounding box
+        x_min, x_max = min(x0, x1, x2, x3), max(x0, x1, x2, x3)
+        y_min, y_max = min(y0, y1, y2, y3), max(y0, y1, y2, y3)
+
+        # Calculate center and dimensions
+        cx = (x_min + x_max) / 2
+        cy = (y_min + y_max) / 2
+        width = x_max - x_min
+        height = y_max - y_min
         
-        # Correct width and height based on tag size and depth
-        widths = int(tag_size * f_x / depth) if depth > 0 else width
-        heights = int(tag_size * f_y / depth) if depth > 0 else height
+        H = detection.homography
+        Z0 = 1.32/2
+        
+        pixel_coord = array([[cx], [cy], [1]])
+        transformed = H @ pixel_coord
+        w = transformed[2, 0]  # Extract w (scale factor)
+        
+        if w != 0:  # Avoid division by zero
+            depth = Z0 / w
+            real_cx = transformed[0, 0] / w
+            real_cy = transformed[1, 0] / w
+            
+            # Scale width and height to real-world size
+            focal_length = 1000  # Example focal length, adjust based on calibration
+            width_meters = (width / focal_length) * depth
+            height_meters = (height / focal_length) * depth
+        else:
+            depth = 0
+            real_cx, real_cy = 0, 0
+            width_meters, height_meters = 0, 0
 
         # Ensure storage for this tag ID
         if tag_id not in tag_data:
@@ -108,10 +117,10 @@ while cap.isOpened():
                                 "width_vals": [], "height_vals": [], "depth_vals": []}
         
         # Store values for this tag ID
-        tag_data[tag_id]["center_x_vals"].append(center_xs)
-        tag_data[tag_id]["center_y_vals"].append(center_ys)
-        tag_data[tag_id]["width_vals"].append(widths)
-        tag_data[tag_id]["height_vals"].append(heights)
+        tag_data[tag_id]["center_x_vals"].append(real_cx)
+        tag_data[tag_id]["center_y_vals"].append(real_cy)
+        tag_data[tag_id]["width_vals"].append(width_meters)
+        tag_data[tag_id]["height_vals"].append(height_meters)
         tag_data[tag_id]["depth_vals"].append(depth)
 
         # Draw the detection
@@ -121,58 +130,12 @@ while cap.isOpened():
             cv2.line(frame, pt1, pt2, (0, 255, 0), 2)  # Green box
 
         # Label the tag properly
-        cv2.putText(frame, f"ID: {tag_id}", (x0, y0 - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-        cv2.putText(frame, f"Center: ({center_x}, {center_y})", (center_x, center_y + 20),
+        cv2.putText(frame, f"ID: {tag_id}", (int(cx), int(cy) - 20),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        cv2.putText(frame, f"Center: ({int(cx)}, {int(cy)})", (int(cx), int(cy) + 25),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-        cv2.putText(frame, f"W: {width} H: {height} D: {depth:.2f}m", (center_x, center_y + 40),
+        cv2.putText(frame, f"qW: {width} H: {height} D: {depth:.2f}m", (int(cx), int(cy) + 45),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
-
-    
-    # for detection in detections:
-    #     image_points = array(detection.corners, dtype=float32)
-
-    #     x0, y0 = map(int, detection.corners[0])
-    #     x1, y1 = map(int, detection.corners[1])
-    #     x2, y2 = map(int, detection.corners[2])
-    #     x3, y3 = map(int, detection.corners[3])
-        
-    #     # Pose estimation
-    #     success, rvec, tvec = cv2.solvePnP(object_points, image_points, camera_matrix, dist_coeffs, 
-    #                                        flags=cv2.SOLVEPNP_IPPE_SQUARE)
-    #     depth = tvec[2][0] if success else 0  # Depth from translation vector
-    #     depth_vals.append(depth)
-        
-    #     # Correct X and Y coordinates using depth and tag size
-    #     center_xs = int(((mean(image_points[:, 0]) - c_x) * depth / f_x) + c_x)
-    #     center_ys = int(((mean(image_points[:, 1]) - c_y) * depth / f_y) + c_y)
-        
-    #     center_x = int((min(x0, x3) + max(x1, x2)) / 2)
-    #     center_y = int((min(y0, y1) + max(y2, y3)) / 2)
-    #     width = int(max(x1, x2) - min(x0, x3))
-    #     height = int(max(y2, y3) - min(y0, y1))
-    #     # Correct width and height based on tag size and depth
-    #     widths = int(tag_size * f_x / depth)
-    #     heights = int(tag_size * f_y / depth)
-
-    #     center_x_vals.append(center_xs)
-    #     center_y_vals.append(center_ys)
-    #     width_vals.append(widths)
-    #     height_vals.append(heights)
-
-    #     # Drawing tags
-    #     for i in range(4):
-    #         pt1 = tuple(round(image_points[i]).astype(int))
-    #         pt2 = tuple(round(image_points[(i + 1) % 4]).astype(int))
-    #         cv2.line(frame, pt1, pt2, (0, 255, 0), 2)
-
-    #     tag_id = str(detection.tag_id)
-    #     cv2.putText(frame, f"ID: {tag_id}", (x0, y0 - 10),
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    #     cv2.putText(frame, f"Center: ({center_x}, {center_y})", (center_x, center_y + 20),
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    #     cv2.putText(frame, f"W: {width} H: {height} D: {depth:.2f}m", (center_x, center_y + 40),
-    #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
 
     out.write(frame)
     cv2.imshow('AprilTag Detection', frame)
@@ -183,36 +146,6 @@ cap.release()
 out.release()
 cv2.destroyAllWindows()
 print(f"Video saved to {output_path}")
-
-# Plotting collected data
-# plt.figure(figsize=(12, 10))
-# plt.subplot(3, 2, 1)
-# plt.plot(center_x_vals, label='Center X')
-# plt.title('Center X values')
-# plt.legend()
-
-# plt.subplot(3, 2, 2)
-# plt.plot(center_y_vals, label='Center Y')
-# plt.title('Center Y values')
-# plt.legend()
-
-# plt.subplot(3, 2, 3)
-# plt.plot(depth_vals, label='Depth (Z)')
-# plt.title('Depth (Z) values')
-# plt.legend()
-
-# plt.subplot(3, 2, 4)
-# plt.plot(width_vals, label='Width')
-# plt.title('Width values')
-# plt.legend()
-
-# plt.subplot(3, 2, 5)
-# plt.plot(height_vals, label='Height')
-# plt.title('Height values')
-# plt.legend()
-
-# plt.tight_layout()
-# plt.show()
 
 for tag_id, data in tag_data.items():
     plt.figure(figsize=(12, 10))  # Create a new figure for each tag
@@ -240,11 +173,6 @@ for tag_id, data in tag_data.items():
     plt.subplot(3, 2, 5)
     plt.plot(data["height_vals"], label=f'Tag {tag_id} - Height', color='c')
     plt.title(f'Tag {tag_id} - Height')
-    plt.legend()
-
-    plt.subplot(3, 2, 6)
-    plt.plot(data["depth_vals"], label=f'Tag {tag_id} - Depth Repeated', color='orange')
-    plt.title(f'Tag {tag_id} - Depth (Repeated)')
     plt.legend()
 
     plt.suptitle(f"AprilTag {tag_id} Data Over Time")  # Super title for clarity

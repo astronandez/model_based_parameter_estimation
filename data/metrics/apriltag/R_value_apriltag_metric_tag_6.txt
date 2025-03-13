@@ -1,0 +1,18 @@
+Model Metrics: R_value_apriltag
+=====================================
+Mean of center in y-axis: 36.037158246767724
+Variance of center in y-axis: 0.004752150489240602
+Standard Deviation of center in y-axis: 0.06893584328374175
+=====================================
+Mean of center in x-axis: 203.0677492533251
+Variance of center in x-axis: 0.0064338836018186865
+Standard Deviation of center in x-axis: 0.08021149295343334
+=====================================
+Mean of detection width: 14.438176904021011
+Variance of detection width: 0.00992445192253186
+Standard Deviation of detection width: 0.09962154346591835
+=====================================
+Mean of detection height: 14.185112159355436
+Variance of detection height: 0.028868020120390997
+Standard Deviation of detection height: 0.16990591549557948 
+

@@ -1,0 +1,24 @@
+{
+    "case_id": "R_value_apriltag",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_base.json",
+    "camera_config_path": "./configuration_files/camera_configs/camera_base.json",
+    "detector_config_path": "./configuration_files/detector_configs/detector_base.json",
+
+    "frame_w": 640,
+    "frame_h": 360,
+    "input": "./videos/apriltag/R_value.MOV",
+    "write": true,
+
+    "detector": "./computer_vision/cv_models/detector2.pt",
+    "calibration_data": "./configuration_files/camera_configs/calibration_matrix_dslr.json",
+    "min_dist": 50,
+    "max_age": 2,
+    "tag_size": 0.07,
+    "use_tags": true,
+
+    "from_recording": true,
+    "store_metrics": true,
+    "store_graphs": false,
+    "store_fit": false,
+    "store_eval": false
+}

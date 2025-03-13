@@ -1,0 +1,55 @@
+{
+    "case_id": "sport_nopass_apriltag",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_base.json",
+    "camera_config_path": "./configuration_files/camera_configs/camera_base.json",
+    "detector_config_path": "./configuration_files/detector_configs/detector_base.json",
+
+    "frame_w": 640,
+    "frame_h": 360,
+    "input": "./videos/apriltag/sport_120fps_4k_2x_load_1.mov",
+    "write": true,
+
+    "detector": "./computer_vision/cv_models/detector2.pt",
+    "calibration_data": "./configuration_files/camera_configs/calibration_matrix_dslr.json",
+    "min_dist": 50,
+    "max_age": 2,
+    "tag_size": 0.07,
+    "use_tags": true,
+
+    "dt": 0.01668335001,
+    "H": [[183.8, 0]],
+    "x0": [[0], [0]],
+    
+    "true_m": 1551.2857,
+    "true_k": 485.1,
+    "true_b": 1735.0,
+    "true_Q": 1e2,
+    "true_R": 0.016028527,
+
+    "Q_variants_start": 1e-5,
+    "Q_variants_end": 1e5,
+    "Q_variants_step": 10,
+
+    "R_variants_start": 1.0,
+    "R_variants_end": 1.0,
+    "R_variants_step": 1.0,
+
+    "m_variants_start": 1200.0,
+    "m_variants_end": 1700.0,
+    "m_variants_step": 100.0,
+
+    "k_variants_start": 300.0,
+    "k_variants_end": 600.0,
+    "k_variants_step": 50.0,
+
+    "b_variants_start": 1000.0,
+    "b_variants_end": 2000.0,
+    "b_variants_step": 100.0,
+
+
+    "from_recording": true,
+    "store_metrics": true,
+    "store_graphs": false,
+    "store_fit": false,
+    "store_eval": false
+}

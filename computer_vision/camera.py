@@ -31,9 +31,13 @@ class Camera:
         print("Initializing Camera...")
         capture = cv.VideoCapture(self.input)
         self.capture = capture
+
         fw, fh, fps = (int(capture.get(x)) for x in (cv.CAP_PROP_FRAME_WIDTH,
-                                             cv.CAP_PROP_FRAME_HEIGHT, 
-                                             cv.CAP_PROP_FPS))
+                                                     cv.CAP_PROP_FRAME_HEIGHT, 
+                                                     cv.CAP_PROP_FPS))
+        self.fps = fps
+        self.fw = fw
+        self.fh = fh
         
         if self.write:
             final_path = f"{self.path}{self.case_id}_{time.strftime('%Y%m%d_%H%M%S')}"
@@ -78,6 +82,7 @@ class Camera:
             self.output.write(frame)
             
         cv.imshow('Recording', frame)  
+        
         return frame
     
     def defaultRecording(self):

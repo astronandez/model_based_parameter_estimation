@@ -1,9 +1,11 @@
 {
     "frame_w": 640,
     "frame_h": 360,
-    "detector": "./computer_vision/cv_models/detector2.pt",
+    "detector": "./computer_vision/cv_models/sticky_detector.pt",
     "calibration_data": "./configuration_files/camera_configs/calibration_matrix_dslr.json",
     "output": "./output/",
+    "tag_size": 0.07,
+    "use_tags": true,
     "min_dist": 50,
     "max_age": 2
 }

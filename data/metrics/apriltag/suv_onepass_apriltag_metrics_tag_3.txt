@@ -1,0 +1,18 @@
+Model Metrics: suv_onepass_apriltag
+=====================================
+Mean of center in y-axis: 41.36930641863081
+Variance of center in y-axis: 113.43211583946037
+Standard Deviation of center in y-axis: 10.650451438294077
+=====================================
+Mean of center in x-axis: 322.0308720535702
+Variance of center in x-axis: 31142.39451501459
+Standard Deviation of center in x-axis: 176.47207857056193
+=====================================
+Mean of detection width: 13.914863745371473
+Variance of detection width: 0.05596095132616752
+Standard Deviation of detection width: 0.2365606715541861
+=====================================
+Mean of detection height: 13.659212191899618
+Variance of detection height: 0.1485613047949087
+Standard Deviation of detection height: 0.3854365120158036 
+

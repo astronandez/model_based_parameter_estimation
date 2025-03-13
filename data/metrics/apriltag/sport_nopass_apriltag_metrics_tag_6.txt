@@ -1,0 +1,18 @@
+Model Metrics: sport_nopass_apriltag
+=====================================
+Mean of center in y-axis: 76.67072310814491
+Variance of center in y-axis: 96.17418140718421
+Standard Deviation of center in y-axis: 9.806843600628298
+=====================================
+Mean of center in x-axis: 319.5245465498704
+Variance of center in x-axis: 30054.66468435881
+Standard Deviation of center in x-axis: 173.36281228786873
+=====================================
+Mean of detection width: 14.875135372846517
+Variance of detection width: 0.0600353520928137
+Standard Deviation of detection width: 0.245021125809212
+=====================================
+Mean of detection height: 14.48710446479993
+Variance of detection height: 0.09120328042076058
+Standard Deviation of detection height: 0.30199880864129347 
+

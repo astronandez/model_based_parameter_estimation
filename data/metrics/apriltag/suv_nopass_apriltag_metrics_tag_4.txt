@@ -1,0 +1,18 @@
+Model Metrics: suv_nopass_apriltag
+=====================================
+Mean of center in y-axis: 205.4283418201265
+Variance of center in y-axis: 49.78982448514394
+Standard Deviation of center in y-axis: 7.056190507996786
+=====================================
+Mean of center in x-axis: 309.7347631227402
+Variance of center in x-axis: 31775.114929652897
+Standard Deviation of center in x-axis: 178.25575707295656
+=====================================
+Mean of detection width: 16.85545626140774
+Variance of detection width: 2.7714915548941783
+Standard Deviation of detection width: 1.6647797316444535
+=====================================
+Mean of detection height: 16.838883899507067
+Variance of detection height: 2.629967825252336
+Standard Deviation of detection height: 1.6217175540926774 
+
