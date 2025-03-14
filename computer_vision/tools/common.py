@@ -1,4 +1,4 @@
-from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray, log10, diag
+from numpy import arange, array, eye, zeros, mean, var, std, sqrt, square, zeros_like, argmin, asarray, log10, diag, round
 import json
 import cv2 as cv
 from itertools import product
@@ -73,6 +73,7 @@ def defaultSetup(config):
             Rins = array([[config["true_R"]]])  
         Rs.append(Rins)
     print(Q)
+    print(R)
     return m, k, b, Q, R, λs, dt, H, Qs, Rs, x0, model_name
 
 ############# Data Utilities ###################
@@ -203,3 +204,21 @@ def drawDetections(frame, id, cx, cy, width, height):
     cv.putText(frame, f'z: {cy} px', (int(cx), int(cy) - int(height/2 + 5)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     cv.putText(frame, f'id: {id}', (int(cx), int(cy) + int(height/2 + 15)), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     return frame
+
+def drawAprilTags(frame, image_points, tag_id, cx, cy, width, height):
+    for i in range(4):
+        pt1 = tuple(round(image_points[i]).astype(int))
+        pt2 = tuple(round(image_points[(i + 1) % 4]).astype(int))
+        cv.line(frame, pt1, pt2, (0, 255, 0), 2)  # Green box
+
+    # Label the tag properly
+    cv.putText(frame, f"ID: {tag_id}", (int(cx), int(cy) - 20),
+            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+    cv.putText(frame, f"Center: ({round(cx, 4)}, {round(cy, 4)})", 
+            (int(cx), int(cy) + 25),
+            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+
+    cv.putText(frame, f"W: {round(abs(width), 4)} H: {round(abs(height), 4)}", 
+            (int(cx), int(cy) + 45),
+            cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)

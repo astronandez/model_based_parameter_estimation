@@ -1,7 +1,7 @@
-{   
+{
     "model_name": "MultivariableSimpleHarmonicOscillator",
     "dt": 0.03333,
-    "H": [[183.8, 0]],
+    "H": [[288.5, 0]],
     "x0": [[0], [0]],
     
     "true_m": 1551.2857,

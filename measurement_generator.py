@@ -43,6 +43,7 @@ class MeasurementGenerator(Camera):
         self.object_data = {}
         self.tag_data = {}
         self.case_id = case_id
+        self.frame_index = 0
         
         self.idealTag = array([[-detector_config["tag_size"] / 2, -detector_config["tag_size"] / 2],  # Top-left
                                [ detector_config["tag_size"] / 2, -detector_config["tag_size"] / 2],  # Top-right
@@ -56,17 +57,19 @@ class MeasurementGenerator(Camera):
         Args:
             frame (cv.Mat): the next frame from input feed
         """
-        frame = cv.undistort(frame, self.camera_matrix, self.dist_coeffs, None)
+        # frame = cv.rotate(frame, cv.ROTATE_180)
+        # frame = cv.undistort(frame, self.camera_matrix, self.dist_coeffs, None)
         frame = cv.resize(frame, (self.detector.frame_w, self.detector.frame_h))
         april_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         
-        # self.objectDetectionProcess(frame)
-        self.aprilTagDetectionProcess(april_frame, frame)
+        self.objectDetectionProcess(frame)
+        # self.aprilTagDetectionProcess(april_frame, frame)
         
         if self.write:
             self.output.write(frame)
             
         cv.imshow('Recording', frame)
+        self.frame_index += 1  # Track frame count
     
     def objectDetectionProcess(self, frame: cv.Mat):
         detections = self.detector.measurement(frame)
@@ -81,14 +84,16 @@ class MeasurementGenerator(Camera):
                 if id not in self.object_data:
                     self.object_data[id] = []
                 
-                self.object_data[id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
+                # self.object_data[id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
+                elapsed_time = self.frame_index / self.fps  
+
+                # Append the calculated time
+                self.object_data[id].append([elapsed_time, 1 / self.fps, cx, cy, abs(width), abs(height)])
         else:
             print("No Objects Detected")
             pass
     
     def aprilTagDetectionProcess(self,  april_frame: cv.Mat, frame: cv.Mat):
-        focal_length_x = self.camera_matrix[0, 0]  # f_x
-        focal_length_y = self.camera_matrix[1, 1]  # f_y
         detections = self.aprildetector.detect(april_frame)
         self.watch.sync()
         for detection in detections:
@@ -109,54 +114,22 @@ class MeasurementGenerator(Camera):
             cy = (y_min + y_max) / 2
             width = x_max - x_min
             height = y_max - y_min
-
-            H = detection.homography
-            Z0 = 1.5
-            
-            pixel_coord = array([[cx], [cy], [1]])
-            transformed = H @ pixel_coord
-            w = transformed[2, 0]  # Extract w (scale factor)
-            
-            if w != 0:  # Avoid division by zero
-                depth = Z0 / w
-                real_cx = transformed[0, 0] / w
-                real_cy = transformed[1, 0] / w
-
-                # Scale width and height to real-world size
-                width_meters = (width / focal_length_x) * depth
-                height_meters = (height / focal_length_y) * depth
-            else:
-                depth = 0
-                real_cx, real_cy = 0, 0
-                width_meters, height_meters = 0, 0
-
             
             # Ensure storage for this tag ID
             if tag_id not in self.tag_data:
                 self.tag_data[tag_id] = []
             
+            elapsed_time = self.frame_index / self.fps  
+
+            # Append the calculated time
+            self.tag_data[tag_id].append([elapsed_time, 1 / self.fps, cx, cy, abs(width), abs(height)])
+                        
             # # Store values for this tag ID
-            # self.tag_data[tag_id].append([self.watch._curr_time, self.watch._dt, cx, cy, width, height])
-            self.tag_data[tag_id].append([self.watch._curr_time, self.watch._dt, real_cx, real_cy, abs(width_meters), abs(height_meters)])
+            # self.tag_data[tag_id].append([self.watch._curr_time, self.watch._dt, cx, cy, abs(width), abs(height)])
 
             # Draw the detection
-            for i in range(4):
-                pt1 = tuple(round(image_points[i]).astype(int))
-                pt2 = tuple(round(image_points[(i + 1) % 4]).astype(int))
-                cv.line(frame, pt1, pt2, (0, 255, 0), 2)  # Green box
-
-            # Label the tag properly
-            cv.putText(frame, f"ID: {tag_id}", (int(cx), int(cy) - 20),
-                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
-            cv.putText(frame, f"Center: ({round(real_cx, 4)}, {round(real_cy, 4)})", 
-                    (int(cx), int(cy) + 25),
-                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-
-            cv.putText(frame, f"W: {round(abs(width_meters), 4)} H: {round(abs(height_meters), 4)} D: {round(depth, 4)}", 
-                    (int(cx), int(cy) + 45),
-                    cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
-    
+            drawAprilTags(frame, image_points, tag_id, cx, cy, width, height)
+                  
     def storeData(self):
         header = ["time", "dt", "Center (x-axis)", "Center (y-axis)", "box width", "box height"]
         data = {}
@@ -185,41 +158,6 @@ class MeasurementGenerator(Camera):
         heights = obj_heights + tag_heights
 
         return ts, dts, cxs, cys, widths, heights
-
-   
-    # def returnData(self):
-    #     ts = []
-    #     dts = []
-    #     cxs = []
-    #     cys = []
-    #     widths = []
-    #     heights = []
-        
-    #     for track_id in sorted(self.object_data.keys()):  # Ensure order consistency
-    #         track_ts = []
-    #         track_dts = []
-    #         track_cxs = []
-    #         track_cys = []
-    #         track_widths = []
-    #         track_heights = []
-
-    #         for row in self.object_data[track_id]:
-    #             t, dt, cx, cy, width, height = row
-    #             track_ts.append(t)
-    #             track_dts.append(dt)
-    #             track_cxs.append(cx)
-    #             track_cys.append(cy)
-    #             track_widths.append(width)
-    #             track_heights.append(height)
-
-    #         ts.append(track_ts)
-    #         dts.append(track_dts)
-    #         cxs.append(track_cxs)
-    #         cys.append(track_cys)
-    #         widths.append(track_widths)
-    #         heights.append(track_heights)
-        
-    #     return ts, dts, cxs, cys, widths, heights
         
     def defaultMeasurementGenerationProcess(self):
         self.initRecording()

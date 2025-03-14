@@ -103,7 +103,7 @@ class Harness:
             getDataMetrics(self.case_id, cxs, cys, widths, heights)
             sys.stdout = terminal
         else:
-            getDataMetrics(self.case_id, cxs, cys, widths, heights)
+            pass
     
     def storeGraphs(self, ts, cxs, cys, widths, heights):
         if self.store_graphs:
@@ -116,16 +116,18 @@ class Harness:
             defaultFitment(self.case_id, params, ts, cys, self.store_graphs) 
      
     def shapeMeasurements(self, cxs, cys):
-        if self.model_name == "MultivariableSimpleHarmonicOscillator2D":
+        if self.store_eval and self.model_name == "MultivariableSimpleHarmonicOscillator2D":
             zs = [[[a], [b]] for a, b in zip((mean(cxs) - cxs), (mean(cys) - cys))]
             us = zeros_like(zs)
-        else:
+            return zs, us
+        elif self.store_eval and self.model_name == "MultivariableSimpleHarmonicOscillator":
             # zs = [[[a]] for a in (mean(cys) - cys)]
             zs = [[[a]] for a in (cys)]
             us = zeros_like(zs)
-            
-        return zs, us
-    
+            return zs, us
+        else:
+            return None
+        
     def storeEvaluation(self, ts, dts, zs, us):
         if self.store_eval:
             self.evaluation.defaultEvaluation(ts, dts, zs, us, store=self.store_graphs)
@@ -153,8 +155,8 @@ class Harness:
         self.storeEvaluation(ts, dts, zs, us)
         
 if __name__ == "__main__":
-    harness_config_path = "./configuration_files/harness_configs/apriltag/sport_nopass_apriltag.json"
-    # harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_nopass.json" 
+    # harness_config_path = "./configuration_files/harness_configs/apriltag/R_value_apriltag.json"
+    harness_config_path = "./configuration_files/harness_configs/sport/harness_sport_fourpass.json" 
     # harness_config_path = "./configuration_files/harness_configs/suv/harness_suv_threepass.json" 
     # harness_config_path = "./configuration_files/harness_configs/truck/harness_truck_nopass.json" 
     harness = Harness(harness_config_path)

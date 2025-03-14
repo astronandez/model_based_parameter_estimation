@@ -1,6 +1,6 @@
 {
     "case_id": "sport_onepass",
-    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_sport_rb.json",
+    "evaluation_config_path": "./configuration_files/evaluation_configs/evaluation_base.json",
     "camera_config_path": "./configuration_files/camera_configs/camera_base.json",
     "detector_config_path": "./configuration_files/detector_configs/detector_base.json",
 
@@ -10,7 +10,8 @@
     "write": true,
 
 
-    "detector": "./computer_vision/cv_models/sticky_detector.pt",
+    
+    "detector": "./computer_vision/cv_models/detector2.pt",
     "min_dist": 50,
     "max_age": 2,
 

@@ -6,7 +6,7 @@
 
     "frame_w": 640,
     "frame_h": 360,
-    "input": "./videos/previous/sport_empty_right.mp4",
+    "input": "./videos/vehicles/sport/sport_120fps_4k_load_1.mov",
     "write": true,
 
     "detector": "./computer_vision/cv_models/detector2.pt",

@@ -1,5 +1,6 @@
 import sys
-from numpy import array, mean, ndarray, empty, diag, zeros_like
+from numpy import array, mean, ndarray, empty, diag, zeros_like, interp
+from scipy.interpolate import interp1d
 from parameter_estimation_pipeline.MMAE.mmae import MMAE
 from computer_vision.tools.common import *
 
@@ -82,8 +83,6 @@ class Evaluation:
     
 
 if __name__ == "__main__":
-    from computer_vision.tools.dataloader import Dataloader
-    
     def determineMeasurementComp(file_path, highdim: bool = False):
         if highdim:
             data = loadtxt(file_path, delimiter=',', skiprows=1)
@@ -97,11 +96,37 @@ if __name__ == "__main__":
             
             zs = [[[a]] for a in y]
             us = zeros_like(zs)
+            print(us)
             
         return ts, dts, zs, us
     
+    
+    # def determineMeasurementComp(file_path, inter=None, highdim: bool = False):
+    #     data = loadtxt(file_path, delimiter=',', skiprows=1)
+    #     ts, dts = data[:, 0], data[:, 1]
+
+    #     if highdim:
+    #         x, y = data[:, 2], data[:, 3]
+    #         zs = [[[a], [b]] for a, b in zip(x, y)]
+    #     else:
+    #         y = data[:, 3]
+    #         zs = [[[a]] for a in y]
+
+    #     # If combined_ts is provided, interpolate data to match it
+    #     if inter is not None:
+    #         zs_interpolated = interp(inter, ts, array([z[0][0] for z in zs]))
+
+    #         if highdim:
+    #             zs = [[[a], [b]] for a, b in zip(zs_interpolated, zs_interpolated)]
+    #         else:
+    #             zs = [[[a]] for a in zs_interpolated]
+
+    #         ts = inter  # Replace original timestamps with the aligned version
+
+    #     us = zeros_like(zs)  # Assuming `us` doesn't require interpolation
+    #     return ts, dts, zs, us
+    
     def testbenchEvaluation(evaluation_config, case_id, file_path, highdim: bool = False):
-        dataloader = Dataloader("./output/")
         evaluation = Evaluation(evaluation_config, case_id)
         
         ts, dts, zs, us = determineMeasurementComp(file_path, highdim)
@@ -110,7 +135,6 @@ if __name__ == "__main__":
         plt.show()
     
     def testbenchTestQ(evaluation_config, case_id, file_path, highdim: bool = False):
-        dataloader = Dataloader("./output/")
         evaluation = Evaluation(evaluation_config, case_id)
         
         ts, dts, zs, us = determineMeasurementComp(file_path, highdim)
@@ -123,9 +147,44 @@ if __name__ == "__main__":
         evaluation.defaultEvaluation(ts, dts, zs, us, store=True)
         plt.show()
     
-    case_id = 'tag_5_minus_tag_6_corrected'
-    file_path = f"./output/{case_id}.csv"
-    evaluation_config_path = "./configuration_files/evaluation_configs/sport/evaluation_sport_onepass_apriltag_2d.json"
+    def testbenchTestU(evaluation_config, case_id, zs_file_path, us_file_path, highdim: bool = False):
+        evaluation = Evaluation(evaluation_config, case_id)
+        
+        ts_zs, dts_zs, zs, _ = determineMeasurementComp(zs_file_path, highdim)
+        ts_us, dts_us, us, _ = determineMeasurementComp(us_file_path, highdim)
+        
+        plt.figure(figsize=(10, 6))
+        plt.plot(ts_zs, [z[0][0] for z in zs], label='zs Data', marker='o')
+        plt.plot(ts_us, [u[0][0] for u in us], label='us Data', marker='x')
+        plt.legend()
+        plt.title("Data Visualization")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Measurement Values")
+        plt.grid(True)
+
+        # Interpolating missing points
+        f_zs = interp1d(ts_zs, [z[0][0] for z in zs], kind='linear', fill_value='extrapolate')
+        aligned_us = [f_zs(t) for t in ts_us]
+
+        # Visualizing interpolated data
+        plt.plot(ts_us, aligned_us, label='Interpolated zs Data (Aligned to us)', linestyle='--')
+        # plt.plot(ts_us, [u[0][0] for u in us], label='Original us Data', marker='x')
+        plt.legend()
+        plt.title("Interpolated Data Visualization")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Measurement Values")
+        plt.grid(True)
+        plt.show()
+
+        
+        # evaluation.defaultEvaluation(ts_zs, dts_zs, zs, us, True)
+    
+    case_id = 'sport_onepass_apriltag_tag_6_uin'
+    zs_file_path = "./data/apriltag/sport_onepass_apriltag_tag_6.csv"
+    us_file_path = "./data/apriltag/sport_onepass_apriltag_tag_5.csv"
+    evaluation_config_path = "./configuration_files/evaluation_configs/apriltags/evaluation_sport_onepass_apriltag.json"
     evaluation_config = loadConfig(evaluation_config_path)
-    testbenchTestQ(evaluation_config, case_id, file_path, highdim=True)
-    # testbenchEvaluation(evaluation_config, case_id, file_path, True)
+    
+    # testbenchTestQ(evaluation_config, case_id, file_path, highdim=True)
+    # testbenchEvaluation(evaluation_config, case_id, file_path, False)
+    testbenchTestU(evaluation_config, case_id, zs_file_path, us_file_path, False)

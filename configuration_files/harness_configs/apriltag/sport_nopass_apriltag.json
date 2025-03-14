@@ -47,9 +47,9 @@
     "b_variants_step": 100.0,
 
 
-    "from_recording": false,
-    "store_metrics": false,
+    "from_recording": true,
+    "store_metrics": true,
     "store_graphs": false,
     "store_fit": false,
-    "store_eval": true
+    "store_eval": false
 }
